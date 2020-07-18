@@ -1,0 +1,197 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+---
+check_mk:
+  agent:
+    pkg:
+      name: check-mk-agent
+      source: salt://check_mk/sources/check_mk-agent-latest.deb
+    # Location of configuration files for the agents.
+    config_dir: '/etc/check_mk'
+    config:
+      # Configuration for the encryption of the agent data.
+      encryption: '/etc/check_mk/encryption.cfg'
+      xinetd: '/etc/xinetd.d/check-mk-agent'
+    service:
+      name: xinetd
+    plugins_dir: '/usr/lib/check_mk_agent/plugins'
+    plugins:
+      mysql:
+        monitoring_user: root
+        monitoring_password: ''
+
+    # MRPE submodule
+    mrpe:
+      # Configuration file for MRPE – for the execution of standard,
+      # Nagios-compatible check plug-ins.
+      config: '/etc/check_mk/mrpe.cfg'
+      script_dir: '/opt/mrpe-scripts'
+      needrestart:
+        pkg:
+          name: needrestart
+      mysql:
+        mysqltuner:
+          pkg:
+            name: mysqltuner
+            dependencies:
+              - libjson-perl  # Module for manipulating JSON-formatted data
+              - bc            # Command line calculator for arithmetic operations
+              - jq            # lightweight and flexible command-line JSON processor
+          # Whether the cron-formula is used for the recurring execution
+          # of mysqltuner (`true`). If `false`, the execution will be
+          # handled by a cmd.run state.
+          # If using the cron-formula, then add the following command
+          # to the cron pillar:
+          # `mysqltuner --silent --defaults-file /etc/check_mk/mysql.cfg
+          #  --json --outputfile /var/log/mysqltuner_output.json`
+          use_cron_formula: false
+          # If you overwrite the output file in pillar config, then
+          # also change the --outputfile in the cron-formula pillar
+          # (if used).
+          output_file: '/var/log/mysqltuner_output.json'
+          # Whether to add an always-OK "check" with performance data,
+          # including uptime, queries, connections, and traffic stats.
+          performance_metrics: true
+          checks:
+            # Set the warning and critical levels, and the comparison
+            # operator to apply to the given thresholds.
+            # `pretty_name` is used for the display name of the MRPE
+            # check. Changing it on active hosts requires a reinventory!
+            recommendations:
+              pretty_name: "Performance recommendations"
+              compare: '>'
+              warn: None
+              crit: None
+            pct_max_physical_memory:
+              pretty_name: "Max peak memory"
+              compare: '>'
+              warn: 85   # extracted from mysqltuner script. 
+              crit: 95   # sane default?
+            pct_max_used_memory:
+              pretty_name: "Max used memory"
+              compare: '>'
+              warn: 85   # extracted from mysqltuner script.
+              crit: 95   # sane default?          
+            pct_slow_queries:
+              pretty_name: "Slow queries"
+              compare: '>'
+              warn: 5    # extracted from mysqltuner script.
+              crit: 10   # sane default?
+            fragmented_tables:
+              pretty_name: "Fragmented tables"
+              compare: '>'
+              warn: 0    # extracted from mysqltuner script.
+              crit: None
+            pct_connections_used:
+              pretty_name: "Maximum connections"
+              compare: '>'
+              warn: 85   # extracted from mysqltuner script.
+              crit: 95   # sane default?
+            pct_connections_aborted:
+              pretty_name: "Aborted connections"
+              compare: '>'
+              warn: 1    # sane default?
+              crit: 3    # extracted from mysqltuner script.
+            pct_other_processes_memory:
+              pretty_name: "Other processes memory"
+              compare: '>'
+              warn: 15   # extracted from mysqltuner script.
+              crit: None
+            pct_temp_sort_table:
+              pretty_name: "Sorting"
+              compare: '>'
+              warn: 10   # extracted from mysqltuner script.
+              crit: None
+            joins_without_indexes_per_day:
+              pretty_name: "Joins without indexes"
+              compare: '>'
+              warn: 250  # extracted from mysqltuner script.
+              crit: None
+            pct_temp_disk:
+              pretty_name: "Temporary tables"
+              compare: '>'
+              warn: 25  # extracted from mysqltuner script.
+              crit: None
+            thread_cache_hit_rate:
+              pretty_name: "Thread cache hit rate"
+              compare: '<='
+              warn: 50  # extracted from mysqltuner script.
+              crit: None
+            table_cache_hit_rate:
+              pretty_name: "Table cache hit rate"
+              compare: '<'
+              warn: 20  # extracted from mysqltuner script.
+              crit: None
+            pct_files_open:
+              pretty_name: "Open files"
+              compare: '>'
+              warn: 85   # extracted from mysqltuner script.
+              crit: 95   # sane default?
+            pct_table_locks_immediate:
+              pretty_name: "Table locks"
+              compare: '<'
+              warn: 95   # extracted from mysqltuner script.
+              crit: None
+            pct_binlog_cache:
+              pretty_name: "Binlog cache"
+              compare: '<'
+              warn: 90   # extracted from mysqltuner script.
+              crit: None
+            pct_write_queries:
+              pretty_name: "Read / write query ratio"
+              compare: '>'
+              warn: None # no thresholds set in mysqltuner script.
+              crit: None
+            pct_keys_from_mem:
+              pretty_name: "Key buffer - read"
+              compare: '<'
+              warn: 95   # extracted from mysqltuner script.
+              crit: None
+            pct_wkeys_from_mem:
+              pretty_name: "Key buffer - write"
+              compare: '<'
+              warn: 95   # extracted from mysqltuner script.
+              crit: None
+            pct_aria_keys_from_mem:
+              pretty_name: "Aria pagecache"
+              compare: '<'
+              warn: 95   # extracted from mysqltuner script.
+              crit: None
+            pct_read_efficiency:
+              pretty_name: "InnoDB Read efficiency"
+              compare: '<'
+              warn: 90   # extracted from mysqltuner script.
+              crit: None
+            pct_write_efficiency:
+              pretty_name: "InnoDB Write efficiency"
+              compare: '<'
+              warn: 90   # extracted from mysqltuner script.
+              crit: None
+            pct_innodb_buffer_used:
+              pretty_name: "InnoDB buffer usage"
+              compare: '<'
+              warn: None # no output configured in mysqltuner script.
+              crit: None
+            innodb_log_waits:
+              pretty_name: "InnoDB log waits"
+              compare: '>'
+              warn: 0    # extracted from mysqltuner script.
+              crit: None
+
+    # To avoid communication issues, agent data isn't encrypted by default,
+    # and agent connections are accepted from everywhere.
+    encrypted: false
+    only_from_server_ips: '0.0.0.0'
+    # Whether the xinetd-formula is used to manage xinetd (`true`).
+    # If `false`, @TODO: docs
+    use_xinetd_formula: false
+    # Whether the packages-formula is used to manage package installs.
+    # If the default, `false`, is overruled with a `true` then add the 
+    # following pkgs to the packages-formula pillar:
+    # * needrestart
+    # * mysqltuner
+    # * libjson-perl
+    use_packages_formula: false
+
+  systemd_system_dir: '/etc/systemd/system'
+  apt_conf_dir: '/etc/apt/apt.conf.d'
