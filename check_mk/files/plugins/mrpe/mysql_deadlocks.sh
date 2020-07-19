@@ -46,7 +46,7 @@ main() {
     local OPT_ERR=""
 	# Only allow compare options that make sense.
     case "${OPT_COMP}" in
-        '<'|'<=')
+        '>'|'>=')
             ;;
         *)
             local OPT_ERR="-C/--compare must be one of: '>=' '>' (provided input: '${OPT_COMP}')"
