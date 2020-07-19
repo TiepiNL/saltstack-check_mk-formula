@@ -58,6 +58,8 @@ check_mk-mysqltuner-mrpe-mysql-file-managed:
     - source: salt://{{ tplroot }}/files/plugins/mrpe/mysqltuner.sh
     - makedirs: true
     - mode: 774
+    - required_in:
+      - check_mk-mysql-monitoring-mrpe-mysql-file-blockreplace
 
 
 # Bash script to monitor deadlocks. Script execution is handled in `mrpe.cfg`.
@@ -67,6 +69,8 @@ check_mk-deadlocks-mrpe-mysql-file-managed:
     - source: salt://{{ tplroot }}/files/plugins/mrpe/mysql_deadlocks.sh
     - makedirs: true
     - mode: 774
+    - required_in:
+      - check_mk-mysql-monitoring-mrpe-mysql-file-blockreplace
 
 
 # Loop through the mysqltuner mrpe check config (see defaults.yaml,
@@ -110,7 +114,7 @@ check_mk-deadlocks-mrpe-mysql-file-managed:
 # Add the deadlock check and mysqltuner checks to the `mrpe.cfg` file by looping through the checks.
 # Output format:
 # MySQL%20<friendly>%20<name> <script_path>/mysqltuner.sh -a <check> -c <critical> -w <warning> -C '<compare>'
-check_mk-restart_required-mrpe-mysql-file-blockreplace:
+check_mk-mysql-monitoring-mrpe-mysql-file-blockreplace:
   file.blockreplace:
     - name: {{ check_mk.agent.config_dir }}/mrpe.cfg
     - marker_start: '# start-mysql-monitoring-include'
@@ -126,7 +130,6 @@ check_mk-restart_required-mrpe-mysql-file-blockreplace:
     - append_if_not_found: true
     - backup: false
     - require:
-      - file: check_mk-mrpe_checks-mrpe-mysql-file-managed
 {%- if not check_mk.agent.use_packages_formula %}
       - pkg: check_mk-mysqltuner-mrpe-mysql-pkg-installed
       - sls: {{ sls_package_install }}
