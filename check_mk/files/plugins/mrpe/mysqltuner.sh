@@ -1176,7 +1176,7 @@ recommendations() {
 		local RECOMMENDATIONS_DETAILS="Recommendations: ${RECOMMENDATIONS}"
     else
         # No recommendations - all good!
-        RECOMMENDATIONS_COUNT=0
+        local RECOMMENDATIONS_COUNT=0
     fi
 	
     # Repeat logic for adjustments.
@@ -1209,7 +1209,7 @@ recommendations() {
         local OUTPUT="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
 		local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS} ${ADJUST_VARIABLES_DETAILS}"
     fi
-	echo "${RECOMMENDATIONS_COUNT}||${OUTPUT}|${LONG_OUTPUT}"
+	echo "${RECOMMENDATIONS_COUNT}|''|${OUTPUT}|${LONG_OUTPUT}"
 }
 
 # ========================================================================
