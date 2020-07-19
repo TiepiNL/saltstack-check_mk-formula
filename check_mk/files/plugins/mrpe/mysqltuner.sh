@@ -1158,8 +1158,18 @@ recommendations() {
     local RECOMMENDATIONS="${RECOMMENDATIONS%\]}"
     local RECOMMENDATIONS=$(echo "${RECOMMENDATIONS}" | xargs)
     if (( ${#RECOMMENDATIONS} > 0 )); then
-        local RECOMMENDATIONS="General recommendations: ${RECOMMENDATIONS}."
-    # else: No recommendations - all good!
+        # Remove all non-comma chars. The amount of values is the 
+		# amount of commas + one (there's always one separator less
+		# than there are values).
+# @TODO: @BUG: this counter will return an incorrect result if the strings in
+# the 'array' contain commas (and they do).
+	    local COMMAS_ONLY="${RECOMMENDATIONS//[^,]}"
+        local RECOMMENDATIONS_COUNT=$(( ${#ADJUST_VARIABLES}+1 ))
+        local RECOMMENDATIONS_STATUS="General recommendations available: ${RECOMMENDATIONS_COUNT}."
+		local RECOMMENDATIONS_DETAILS="Recommendations: ${RECOMMENDATIONS}"
+    else
+        # No recommendations - all good!
+        RECOMMENDATIONS_COUNT=0
     fi
 	
     # Repeat logic for adjustments.
@@ -1167,7 +1177,14 @@ recommendations() {
     local ADJUST_VARIABLES="${ADJUST_VARIABLES%\]}"
     local ADJUST_VARIABLES=$(echo "${ADJUST_VARIABLES}" | xargs)
     if (( ${#ADJUST_VARIABLES} > 0 )); then
-        local ADJUST_VARIABLES="Recommended variables to adjust: ${ADJUST_VARIABLES}."
+        # Remove all non-comma chars. The amount of values is the 
+		# amount of commas + one (there's always one separator less
+		# than there are values).
+	    local COMMAS_ONLY="${ADJUST_VARIABLES//[^,]}"
+        local ADJUST_VARIABLES_COUNT=$(( ${#ADJUST_VARIABLES}+1 ))
+        local ADJUST_VARIABLES_STATUS="Variable adjustments recommended: ${ADJUST_VARIABLES_COUNT}."
+		local ADJUST_VARIABLES_DETAILS="Recommended variables to adjust: ${ADJUST_VARIABLES}."
+
     # else: No recommended variables to adjust - all good!
     fi
 	
@@ -1182,9 +1199,9 @@ recommendations() {
         if (( $(bc -l <<< "${MAX_PEAK_MEMORY} < 90") )); then
             local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
-        local DESC="${RECOMMENDATIONS} ${ADJUST_VARIABLES}"
+        local DESC="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}\\n ${RECOMMENDATIONS_DETAILS}\\n${ADJUST_VARIABLES_DETAILS}"
     fi
-	echo "${#RECOMMENDATIONS}||${DESC}"
+	echo "${RECOMMENDATIONS_COUNT}||${DESC}"
 }
 
 # ========================================================================
