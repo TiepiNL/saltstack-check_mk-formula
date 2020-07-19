@@ -40,7 +40,7 @@ main() {
 	local OPT_COMP="${OPT_COMP:->}"
     local OPT_CRIT="${OPT_CRIT:-None}"
 	local OPT_WARN="${OPT_WARN:-0}"
-	local OPT_FILE="${OPT_FILE:-/etc/check_mk/mysql.cnf}"
+	local OPT_FILE="${OPT_FILE:-/etc/check_mk/mysql.cfg}"
 
     # Validate the options.
     local OPT_ERR=""

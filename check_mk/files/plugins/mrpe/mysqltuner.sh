@@ -1015,7 +1015,7 @@ pct_keys_from_mem() {
     if (( ${STATUS_KEY_READ_REQUESTS} > 0 )); then
         local PCT_KEYS_FROM_MEM=$(pct -i ${STATUS_KEY_READS} -t ${STATUS_KEY_READ_REQUESTS})
         local PCT_KEYS_FROM_MEM=$(bc -l <<< "100-${PCT_KEYS_FROM_MEM}")
-        local DESC="Read Key buffer hit rate: ${PCT_KEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_READ_REQUESTS}) cached / $(hr_num ${STATUS_KEY_READS}) reads)"
+        local DESC="Read key buffer hit rate: ${PCT_KEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_READ_REQUESTS}) cached / $(hr_num ${STATUS_KEY_READS}) reads)"
     else
 	    local PCT_KEYS_FROM_MEM=100
         local DESC="No read queries have run yet that would use keys - nothing to check!"
@@ -1033,7 +1033,7 @@ pct_wkeys_from_mem() {
     # Logic & calculations
     if (( ${STATUS_KEY_WRITE_REQUESTS} > 0 )); then
         local PCT_WKEYS_FROM_MEM=$(pct -i ${STATUS_KEY_WRITES} -t ${STATUS_KEY_WRITE_REQUESTS})
-        local DESC="Write Key buffer hit rate: ${PCT_WKEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_WRITE_REQUESTS}) cached / $(hr_num ${STATUS_KEY_WRITES}) writes)"
+        local DESC="Write key buffer hit rate: ${PCT_WKEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_WRITE_REQUESTS}) cached / $(hr_num ${STATUS_KEY_WRITES}) writes)"
     else
 		local PCT_WKEYS_FROM_MEM=100
         local DESC="No write queries have run yet that would use keys - nothing to check!"
