@@ -206,12 +206,11 @@ main() {
 
     # Set `None` thresholds to null for the perfdata.
     local PERFDATA="${OPT_CHCK}=${VAL}${UOM};${OPT_WARN/None/''};${OPT_CRIT/None/''};0;${PERFDATA_MAX:-''}"
-    local OUTPUT="${OUTPUT}|${PERFDATA}"
     # Add multiline output, if any.
     if [ ! -z "${LONG_OUTPUT}" ]; then
-        echo "${OUTPUT}\n${LONG_OUTPUT}"
+        echo "${OUTPUT}|${PERFDATA}\n${LONG_OUTPUT}"
     else
-        echo "${OUTPUT}"
+        echo "${OUTPUT}|${PERFDATA}"
     fi
 }
 
