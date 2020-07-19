@@ -177,6 +177,7 @@ main() {
     local VAL="${CHECK_OUTPUT_ARR[0]}"
     local UOM="${CHECK_OUTPUT_ARR[1]}"  # unit of measurement
     local DESC="${CHECK_OUTPUT_ARR[2]}"
+	local DETAILS="${CHECK_OUTPUT_ARR[3]:-''}"
 
     # Compare the check value with warning/critical thresholds
     # to define the check state.
@@ -206,6 +207,10 @@ main() {
     # Set `None` thresholds to null for the perfdata.
     local PERFDATA="${OPT_CHCK}=${VAL}${UOM};${OPT_WARN/None/''};${OPT_CRIT/None/''};0;${PERFDATA_MAX:-''}"
     local NOTE="$NOTE|$PERFDATA"
+    # Add multiline output, if any.
+    if [ ! "${DETAILS}" = '' ]; then
+        local NOTE="$NOTE\n$DETAILS"
+    fi
 
    echo $NOTE
 }
@@ -1162,7 +1167,9 @@ recommendations() {
 		# amount of commas + one (there's always one separator less
 		# than there are values).
 # @TODO: @BUG: this counter will return an incorrect result if the strings in
-# the 'array' contain commas (and they do).
+# the 'array' contain commas (and they do). If this is fixed - by only looking
+# for commas with a leading double quote - then the multiline output can have a
+# @REFACTOR: to a list instead of a single string.
 	    local COMMAS_ONLY="${RECOMMENDATIONS//[^,]}"
         local RECOMMENDATIONS_COUNT=$(( ${#COMMAS_ONLY}+1 ))
         local RECOMMENDATIONS_STATUS="General recommendations available: ${RECOMMENDATIONS_COUNT}."
@@ -1199,9 +1206,10 @@ recommendations() {
         if (( $(bc -l <<< "${MAX_PEAK_MEMORY} < 90") )); then
             local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
-        local DESC="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}\n ${RECOMMENDATIONS_DETAILS}\n${ADJUST_VARIABLES_DETAILS}"
+        local DESC="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
+		local DETAILS="${RECOMMENDATIONS_DETAILS}\n${ADJUST_VARIABLES_DETAILS}"
     fi
-	echo "${RECOMMENDATIONS_COUNT}||${DESC}"
+	echo "${RECOMMENDATIONS_COUNT}||${DESC}|${DETAILS}"
 }
 
 # ========================================================================
