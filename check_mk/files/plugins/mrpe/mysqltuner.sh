@@ -177,7 +177,7 @@ main() {
     local VAL="${CHECK_OUTPUT_ARR[0]}"
     local UOM="${CHECK_OUTPUT_ARR[1]}"  # unit of measurement
     local DESC="${CHECK_OUTPUT_ARR[2]}"
-	local DETAILS="${CHECK_OUTPUT_ARR[3]:-''}"
+	local EXTENDED_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
 
     # Compare the check value with warning/critical thresholds
     # to define the check state.
@@ -206,10 +206,10 @@ main() {
 
     # Set `None` thresholds to null for the perfdata.
     local PERFDATA="${OPT_CHCK}=${VAL}${UOM};${OPT_WARN/None/''};${OPT_CRIT/None/''};0;${PERFDATA_MAX:-''}"
-    local NOTE="$NOTE|$PERFDATA"
+    local NOTE="${NOTE}|${PERFDATA}"
     # Add multiline output, if any.
-    if [ ! "${DETAILS}" = '' ]; then
-        local NOTE="$NOTE\n$DETAILS"
+    if [ ! -z "${EXTENDED_OUTPUT}" ]; then
+        local NOTE="${NOTE}\n${EXTENDED_OUTPUT}"
     fi
 
    echo $NOTE
@@ -1207,9 +1207,9 @@ recommendations() {
             local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
         local DESC="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
-		local DETAILS="${RECOMMENDATIONS_DETAILS}\n${ADJUST_VARIABLES_DETAILS}"
+		local EXTENDED_OUTPUT="${RECOMMENDATIONS_DETAILS}\n${ADJUST_VARIABLES_DETAILS}"
     fi
-	echo "${RECOMMENDATIONS_COUNT}||${DESC}|${DETAILS}"
+	echo "${RECOMMENDATIONS_COUNT}||${DESC}|${EXTENDED_OUTPUT}"
 }
 
 # ========================================================================
