@@ -209,7 +209,7 @@ main() {
     local OUTPUT="${OUTPUT}|${PERFDATA}"
     # Add multiline output, if any.
     if [ ! -z "${LONG_OUTPUT}" ]; then
-        echo "${OUTPUT}"'\\n'"${LONG_OUTPUT}"
+        echo "${OUTPUT}\n${LONG_OUTPUT}"
     else
         echo "${OUTPUT}"
     fi
@@ -1100,7 +1100,7 @@ pct_write_efficiency() {
     if (( ${STATUS_INNODB_LOG_WRITE_REQUESTS} > 0 )); then
         local HITS=$(bc -l <<< "${STATUS_INNODB_LOG_WRITE_REQUESTS}-${STATUS_INNODB_LOG_WRITES}")
         local PCT_WRITE_EFFICIENCY=$(pct -i ${HITS} -t ${STATUS_INNODB_LOG_WRITE_REQUESTS})
-        local OUTPUT="InnoDB Write Log efficiency: ${PCT_WRITE_EFFICIENCY}% ($(hr_num ${HITS}) hits / $(hr_num ${STATUS_INNODB_LOG_WRITE_REQUESTS}) total)"
+        local OUTPUT="InnoDB write log efficiency: ${PCT_WRITE_EFFICIENCY}% ($(hr_num ${HITS}) hits / $(hr_num ${STATUS_INNODB_LOG_WRITE_REQUESTS}) total)"
     else
         local PCT_WRITE_EFFICIENCY=100
         local OUTPUT="No InnoDB log writes requests yet - nothing to check!"
