@@ -56,7 +56,7 @@ main() {
         '=='|'<'|'<='|'!='|'>='|'>')
             ;;
         *)
-            local OPT_ERR="-C must be one of: == != >= > < <="
+            local OPT_ERR="-C/--compare must be one of: '==', '!=', '>=', '>', '<', '<=' (provided input: '${OPT_COMP}')"
             ;;
     esac
 
@@ -212,7 +212,7 @@ main() {
         local NOTE="${NOTE}\n${EXTENDED_OUTPUT}"
     fi
 
-   echo $NOTE
+    echo $NOTE
 }
 
 # ########################################################################
@@ -1227,12 +1227,12 @@ recommendations() {
 LOAD_JSON_FILE=true
 
 OUTPUT=$(main "$@")
-EXITSTATUS=$STATE_UNKNOWN
 case "${OUTPUT}" in
     UNK*)  EXITSTATUS=$STATE_UNKNOWN;  ;;
     OK*)   EXITSTATUS=$STATE_OK;       ;;
     WARN*) EXITSTATUS=$STATE_WARNING;  ;;
     CRIT*) EXITSTATUS=$STATE_CRITICAL; ;;
+    *)     EXITSTATUS=$STATE_UNKNOWN;  ;;
 esac
 echo "${OUTPUT}"
 exit $EXITSTATUS
