@@ -5,14 +5,17 @@
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- from tplroot ~ "/map.jinja" import check_mk with context %}
 
-# @TODO: docs
+# Include the xinetd state if the xinetd-formula is used,
+# so it can be watched or used as requisite (_in).
 {%- if check_mk.agent.use_xinetd_formula %}
 include:
   - xinetd
 {%- endif %}
 
+
 # @TODO: docs
 {%- if not check_mk.agent.use_packages_formula %}
+
 check_mk-check-mk-agent-install-pkg-installed:
   pkg.installed:
     - name: {{ check_mk.agent.pkg.name }}
@@ -24,4 +27,5 @@ check_mk-check-mk-agent-install-pkg-installed:
     - watch_in:
       - service: xinetd
 {%-   endif %}
+
 {%- endif %}
