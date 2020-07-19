@@ -177,23 +177,23 @@ main() {
     local VAL="${CHECK_OUTPUT_ARR[0]}"
     local UOM="${CHECK_OUTPUT_ARR[1]}"  # unit of measurement
     local DESC="${CHECK_OUTPUT_ARR[2]}"
-	local EXTENDED_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
+	local LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
 
     # Compare the check value with warning/critical thresholds
     # to define the check state.
     case $(compare_result "${VAL}" "${OPT_CRIT}" "${OPT_WARN}" "${OPT_COMP}") in
         $STATE_OK)
-            local NOTE="OK - $DESC"
+            local OUTPUT="OK - $DESC"
             ;;
         $STATE_CRITICAL)
-            local NOTE="CRIT - $DESC"
+            local OUTPUT="CRIT - $DESC"
             ;;
         $STATE_WARNING)
-            local NOTE="WARN - $DESC"
+            local OUTPUT="WARN - $DESC"
             ;;
         *)
             # Set default output state and description.
-            local NOTE="UNK Could not evaluate the expression. Output: $DESC"
+            local OUTPUT="UNK Could not evaluate the expression. Output: $DESC"
             ;;
     esac
 
@@ -206,13 +206,13 @@ main() {
 
     # Set `None` thresholds to null for the perfdata.
     local PERFDATA="${OPT_CHCK}=${VAL}${UOM};${OPT_WARN/None/''};${OPT_CRIT/None/''};0;${PERFDATA_MAX:-''}"
-    local NOTE="${NOTE}|${PERFDATA}"
+    local OUTPUT="${OUTPUT}|${PERFDATA}"
     # Add multiline output, if any.
-    if [ ! -z "${EXTENDED_OUTPUT}" ]; then
-        local NOTE="${NOTE}\\n${EXTENDED_OUTPUT}"
+    if [ ! -z "${LONG_OUTPUT}" ]; then
+        echo "${OUTPUT}"'\\n'"${LONG_OUTPUT}"
+    else
+        echo "${OUTPUT}"
     fi
-
-    echo $NOTE
 }
 
 # ########################################################################
@@ -1207,9 +1207,9 @@ recommendations() {
             local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
         local DESC="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
-		local EXTENDED_OUTPUT="${RECOMMENDATIONS_DETAILS}\n${ADJUST_VARIABLES_DETAILS}"
+		local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS}\n${ADJUST_VARIABLES_DETAILS}"
     fi
-	echo "${RECOMMENDATIONS_COUNT}||${DESC}|${EXTENDED_OUTPUT}"
+	echo "${RECOMMENDATIONS_COUNT}||${DESC}|${LONG_OUTPUT}"
 }
 
 # ========================================================================
