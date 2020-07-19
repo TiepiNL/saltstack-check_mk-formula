@@ -209,7 +209,7 @@ main() {
     local NOTE="${NOTE}|${PERFDATA}"
     # Add multiline output, if any.
     if [ ! -z "${EXTENDED_OUTPUT}" ]; then
-        local NOTE="${NOTE}\n${EXTENDED_OUTPUT}"
+        local NOTE="${NOTE}\\n${EXTENDED_OUTPUT}"
     fi
 
     echo $NOTE
