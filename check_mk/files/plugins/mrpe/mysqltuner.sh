@@ -176,24 +176,24 @@ main() {
 
     local VAL="${CHECK_OUTPUT_ARR[0]}"
     local UOM="${CHECK_OUTPUT_ARR[1]}"  # unit of measurement
-    local DESC="${CHECK_OUTPUT_ARR[2]}"
+    local OUTPUT="${CHECK_OUTPUT_ARR[2]}"
 	local LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
 
     # Compare the check value with warning/critical thresholds
     # to define the check state.
     case $(compare_result "${VAL}" "${OPT_CRIT}" "${OPT_WARN}" "${OPT_COMP}") in
         $STATE_OK)
-            local OUTPUT="OK - $DESC"
+            local OUTPUT="OK - ${OUTPUT}"
             ;;
         $STATE_CRITICAL)
-            local OUTPUT="CRIT - $DESC"
+            local OUTPUT="CRIT - ${OUTPUT}"
             ;;
         $STATE_WARNING)
-            local OUTPUT="WARN - $DESC"
+            local OUTPUT="WARN - ${OUTPUT}"
             ;;
         *)
             # Set default output state and description.
-            local OUTPUT="UNK Could not evaluate the expression. Output: $DESC"
+            local OUTPUT="UNK Could not evaluate the expression. Output: ${OUTPUT}"
             ;;
     esac
 
@@ -545,11 +545,11 @@ pct_slow_queries() {
 	local PCT_SLOW_QUERIES=$(pct -i ${STATUS_SLOW_QUERIES} -t ${STATUS_QUESTIONS})
     # Logic & calculations
     if (( $(bc -l <<< "${PCT_SLOW_QUERIES} > 0") )); then
-        local DESC="Slow queries: ${PCT_SLOW_QUERIES}% ($(hr_num ${STATUS_SLOW_QUERIES}) slow / $(hr_num ${STATUS_QUESTIONS}) queries)"
+        local OUTPUT="Slow queries: ${PCT_SLOW_QUERIES}% ($(hr_num ${STATUS_SLOW_QUERIES}) slow / $(hr_num ${STATUS_QUESTIONS}) queries)"
     else
-        local DESC="No slow queries detected - all good!"
+        local OUTPUT="No slow queries detected - all good!"
     fi
-	echo "${PCT_SLOW_QUERIES}|%|${DESC}"
+	echo "${PCT_SLOW_QUERIES}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -574,15 +574,15 @@ fragmented_tables() {
 	    local COMMAS_ONLY="${TABLES_FRAGMENTED//[^,]}"
         local TABLES_FRAGMENTED_COUNT=$(( ${#COMMAS_ONLY}+1 ))
 
-        local DESC="Fragmented tables (TABLES_FRAGMENTED_COUNT): ${TABLES_FRAGMENTED}"
+        local OUTPUT="Fragmented tables (TABLES_FRAGMENTED_COUNT): ${TABLES_FRAGMENTED}"
 	else
         # An empty original string means no fragmented tables.
 	    local TABLES_FRAGMENTED_COUNT=0
 
-        local DESC="No fragmented tables - all good!"
+        local OUTPUT="No fragmented tables - all good!"
     fi
 
-	echo "${TABLES_FRAGMENTED_COUNT}||${DESC}"
+	echo "${TABLES_FRAGMENTED_COUNT}||${OUTPUT}"
 }
 
 # ########################################################################
@@ -598,11 +598,11 @@ pct_connections_used() {
         local PCT_CONNECTIONS_USED="100.00"
     fi	
     if (( ${VARIABLES_MAX_CONNECTIONS} > 0 )); then
-        local DESC="Highest usage of available connections: ${PCT_CONNECTIONS_USED}% ($(hr_num ${STATUS_MAX_USED_CONNECTIONS}) max used / $(hr_num ${VARIABLES_MAX_CONNECTIONS}) available)"
+        local OUTPUT="Highest usage of available connections: ${PCT_CONNECTIONS_USED}% ($(hr_num ${STATUS_MAX_USED_CONNECTIONS}) max used / $(hr_num ${VARIABLES_MAX_CONNECTIONS}) available)"
     else
-        local DESC="No maximum connection limit configured. Max used connections: $(hr_num ${STATUS_MAX_USED_CONNECTIONS})"
+        local OUTPUT="No maximum connection limit configured. Max used connections: $(hr_num ${STATUS_MAX_USED_CONNECTIONS})"
     fi
-	echo "${PCT_CONNECTIONS_USED}|%|${DESC}"
+	echo "${PCT_CONNECTIONS_USED}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -616,15 +616,15 @@ pct_connections_aborted() {
     local PCT_CONNECTIONS_ABORTED=$(pct -i ${STATUS_ABORTED_CONNECTS} -t ${STATUS_CONNECTIONS})
     if (( ${STATUS_CONNECTIONS} > 0 )); then
         if (( ${STATUS_ABORTED_CONNECTS} == 0 )); then
-            local DESC="No aborted connections - all good! ($(hr_num ${STATUS_CONNECTIONS}) total connections)"
+            local OUTPUT="No aborted connections - all good! ($(hr_num ${STATUS_CONNECTIONS}) total connections)"
         else
-            local DESC="Aborted connections: ${PCT_CONNECTIONS_ABORTED}% ($(hr_num ${STATUS_ABORTED_CONNECTS}) aborted / $(hr_num ${STATUS_CONNECTIONS}) total)"
+            local OUTPUT="Aborted connections: ${PCT_CONNECTIONS_ABORTED}% ($(hr_num ${STATUS_ABORTED_CONNECTS}) aborted / $(hr_num ${STATUS_CONNECTIONS}) total)"
         fi
     else
         # This should be impossible?
-        local DESC="No connections at all yet - nothing to check!"
+        local OUTPUT="No connections at all yet - nothing to check!"
     fi
-	echo "${STATUS_ABORTED_CONNECTS}|%|${DESC}"
+	echo "${STATUS_ABORTED_CONNECTS}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -668,9 +668,9 @@ pct_max_used_memory() {
     local SERVER_BUFFERS=$(( ${VARIABLES_KEY_BUFFER_SIZE}+${MAX_TMP_TABLE_SIZE}+${VARIABLES_INNODB_BUFFER_POOL_SIZE}+${VARIABLES_INNODB_ADDITIONAL_MEM_POOL_SIZE}+${VARIABLES_INNODB_LOG_BUFFER_SIZE}+${VARIABLES_QUERY_CACHE_SIZE}+${VARIABLES_ARIA_PAGECACHE_BUFFER_SIZE} ))
     local MAX_USED_MEMORY=$(( ${SERVER_BUFFERS}+${MAX_TOTAL_PER_THREAD_BUFFERS}+${P_S_MEMORY}+${GALERA_GCACHE_MEMORY} ))
     local PCT_MAX_USED_MEMORY=$(pct -i ${MAX_USED_MEMORY} -t ${OS_PHYSICAL_MEMORY_BYTES})
-    local DESC="Maximum reached mysqld RAM usage: ${PCT_MAX_USED_MEMORY}% ($(hr_bytes ${MAX_USED_MEMORY}) used / $(hr_bytes ${OS_PHYSICAL_MEMORY_BYTES}) installed)"
+    local OUTPUT="Maximum reached mysqld RAM usage: ${PCT_MAX_USED_MEMORY}% ($(hr_bytes ${MAX_USED_MEMORY}) used / $(hr_bytes ${OS_PHYSICAL_MEMORY_BYTES}) installed)"
 	
-	echo "${PCT_MAX_USED_MEMORY}|%|${DESC}"
+	echo "${PCT_MAX_USED_MEMORY}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -742,12 +742,12 @@ pct_max_physical_memory() {
 	elif  [ "${OPT_DATATYPE}" = "pct" ]; then
         echo "${PCT_MAX_PHYSICAL_MEMORY}"
 	else  # assume 'mon'
-        local DESC="Maximum possible mysqld peak RAM usage: ${PCT_MAX_PHYSICAL_MEMORY}% ($(hr_bytes ${MAX_PEAK_MEMORY}) peak / $(hr_bytes ${OS_PHYSICAL_MEMORY_BYTES}) installed)"
+        local OUTPUT="Maximum possible mysqld peak RAM usage: ${PCT_MAX_PHYSICAL_MEMORY}% ($(hr_bytes ${MAX_PEAK_MEMORY}) peak / $(hr_bytes ${OS_PHYSICAL_MEMORY_BYTES}) installed)"
 
         if (( $(bc -l <<< "${OS_PHYSICAL_MEMORY_BYTES} < ${MAX_PEAK_MEMORY}") )); then
-            local DESC="${DESC}. Overall ***possible*** mysqld memory usage exceeded available physical memory!"
+            local OUTPUT="${OUTPUT}. Overall ***possible*** mysqld memory usage exceeded available physical memory!"
         fi
-        echo "${PCT_MAX_PHYSICAL_MEMORY}|%|${DESC}"
+        echo "${PCT_MAX_PHYSICAL_MEMORY}|%|${OUTPUT}"
     fi
 }
 
@@ -764,12 +764,12 @@ pct_other_processes_memory() {
     # Logic & calculations
     local PCT_OTHER_PROCESSES_MEMORY=$(pct -i ${OS_OTHER_PROCESSES_BYTES} -t ${OS_PHYSICAL_MEMORY_BYTES})
     
-	local DESC="Non-mysqld processes use ${PCT_OTHER_PROCESSES_MEMORY}% of total physical memory ($(hr_bytes ${OS_OTHER_PROCESSES_BYTES}) / $(hr_bytes ${OS_PHYSICAL_MEMORY_BYTES}))"
+	local OUTPUT="Non-mysqld processes use ${PCT_OTHER_PROCESSES_MEMORY}% of total physical memory ($(hr_bytes ${OS_OTHER_PROCESSES_BYTES}) / $(hr_bytes ${OS_PHYSICAL_MEMORY_BYTES}))"
     if (( $(bc -l <<< "${OS_PHYSICAL_MEMORY_BYTES} < $(( ${MAX_PEAK_MEMORY}+${OS_OTHER_PROCESSES_BYTES} ))") )); then
-        local DESC="${DESC}. Overall ***possible*** memory usage including non-mysqld processes exceeded available physical memory!"
-# @TODO: extend DESC with $(get_top_memory_procs), once the function is fixed.
+        local OUTPUT="${OUTPUT}. Overall ***possible*** memory usage including non-mysqld processes exceeded available physical memory!"
+# @TODO: extend with LONG_OUTPUT with $(get_top_memory_procs), once the function is fixed.
     fi
-	echo "${PCT_OTHER_PROCESSES_MEMORY}|%|${DESC}"
+	echo "${PCT_OTHER_PROCESSES_MEMORY}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -787,14 +787,14 @@ pct_temp_sort_table() {
     if (( ${TOTAL_SORTS} > 0 )); then
 
         if (( ${STATUS_SORT_MERGE_PASSES} == 0 )); then
-            local DESC="No sorts requiring temporary tables - all good! ($(hr_num ${TOTAL_SORTS}) total sorts)"
+            local OUTPUT="No sorts requiring temporary tables - all good! ($(hr_num ${TOTAL_SORTS}) total sorts)"
         else
-            local DESC="Sorts requiring temporary tables: ${PCT_TEMP_SORT_TABLE}% ($(hr_num ${STATUS_SORT_MERGE_PASSES}) temp sorts / $(hr_num ${TOTAL_SORTS}) sorts)"
+            local OUTPUT="Sorts requiring temporary tables: ${PCT_TEMP_SORT_TABLE}% ($(hr_num ${STATUS_SORT_MERGE_PASSES}) temp sorts / $(hr_num ${TOTAL_SORTS}) sorts)"
         fi
     else
-        local DESC="No sorts yet - nothing to check!"
+        local OUTPUT="No sorts yet - nothing to check!"
     fi
-	echo "${PCT_TEMP_SORT_TABLE}|%|${DESC}"
+	echo "${PCT_TEMP_SORT_TABLE}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -810,11 +810,11 @@ joins_without_indexes_per_day() {
 	local JOINS_WITHOUT_INDEXES_PER_DAY=$(( ${JOINS_WITHOUT_INDEXES}/(${STATUS_UPTIME}/86400) ))
 
     if (( ${JOINS_WITHOUT_INDEXES} > 0 )); then
-        local DESC="Joins performed without indexes: $(hr_num ${JOINS_WITHOUT_INDEXES}) ($(hr_num ${JOINS_WITHOUT_INDEXES_PER_DAY}) per day)"
+        local OUTPUT="Joins performed without indexes: $(hr_num ${JOINS_WITHOUT_INDEXES}) ($(hr_num ${JOINS_WITHOUT_INDEXES_PER_DAY}) per day)"
     else
-        local DESC="No joins without indexes - all good!"
+        local OUTPUT="No joins without indexes - all good!"
     fi
-	echo "${JOINS_WITHOUT_INDEXES_PER_DAY}||${DESC}"
+	echo "${JOINS_WITHOUT_INDEXES_PER_DAY}||${OUTPUT}"
 }
 
 # ########################################################################
@@ -828,11 +828,11 @@ pct_temp_disk() {
     local PCT_TEMP_DISK=$(pct -i ${STATUS_CREATED_TMP_DISK_TABLES} -t ${STATUS_CREATED_TMP_TABLES})
     
     if (( ${STATUS_CREATED_TMP_TABLES} > 0 )); then
-        local DESC="Temporary tables created on disk: ${PCT_TEMP_DISK}% ($(hr_num ${STATUS_CREATED_TMP_DISK_TABLES}) on disk / $(hr_num ${STATUS_CREATED_TMP_TABLES}) total)"
+        local OUTPUT="Temporary tables created on disk: ${PCT_TEMP_DISK}% ($(hr_num ${STATUS_CREATED_TMP_DISK_TABLES}) on disk / $(hr_num ${STATUS_CREATED_TMP_TABLES}) total)"
     else
-        local DESC="No tmp tables created on disk"
+        local OUTPUT="No tmp tables created on disk"
     fi
-	echo "${PCT_TEMP_DISK}|%|${DESC}"
+	echo "${PCT_TEMP_DISK}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -852,13 +852,13 @@ thread_cache_hit_rate() {
     # When thread pool is enabled, the value of the thread_cache_size variable
     # is ignored. The Threads_cached status variable contains 0 in this case.	
     if [ "${VARIABLES_THREAD_HANDLING}" = "pool-of-threads" ]; then
-        local DESC="Thread cache not used with thread_handling=pool-of-threads - nothing to check!"
+        local OUTPUT="Thread cache not used with thread_handling=pool-of-threads - nothing to check!"
     elif (( ${VARIABLES_THREAD_CACHE_SIZE} > 0 )); then
-        local DESC="Thread cache hit rate: ${THREAD_CACHE_HIT_RATE}% ($(hr_num ${STATUS_THREADS_CREATED}) threads created / $(hr_num ${STATUS_CONNECTIONS}) connections)"
+        local OUTPUT="Thread cache hit rate: ${THREAD_CACHE_HIT_RATE}% ($(hr_num ${STATUS_THREADS_CREATED}) threads created / $(hr_num ${STATUS_CONNECTIONS}) connections)"
     else
-        local DESC="Thread cache seems disabled"
+        local OUTPUT="Thread cache seems disabled"
     fi
-	echo "${THREAD_CACHE_HIT_RATE}|%|${DESC}"
+	echo "${THREAD_CACHE_HIT_RATE}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -871,12 +871,12 @@ table_cache_hit_rate() {
     # Logic & calculations
     if (( ${STATUS_OPEN_TABLES} > 0 )); then
         local TABLE_CACHE_HIT_RATE=$(pct -i ${STATUS_OPEN_TABLES} -t ${STATUS_OPENED_TABLES})
-        local DESC="Table cache hit rate: ${TABLE_CACHE_HIT_RATE}% ($(hr_num ${STATUS_OPEN_TABLES}) open / $(hr_num ${STATUS_OPENED_TABLES}) opened)"
+        local OUTPUT="Table cache hit rate: ${TABLE_CACHE_HIT_RATE}% ($(hr_num ${STATUS_OPEN_TABLES}) open / $(hr_num ${STATUS_OPENED_TABLES}) opened)"
     else
         local TABLE_CACHE_HIT_RATE=100
-        local DESC="No open tables - nothing to check!"
+        local OUTPUT="No open tables - nothing to check!"
     fi
-	echo "${TABLE_CACHE_HIT_RATE}|%|${DESC}"
+	echo "${TABLE_CACHE_HIT_RATE}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -890,11 +890,11 @@ pct_files_open() {
     local PCT_FILES_OPEN=$(pct -i ${STATUS_OPEN_FILES} -t ${VARIABLES_OPEN_FILES_LIMIT})
 
     if (( ${VARIABLES_OPEN_FILES_LIMIT} > 0 )); then
-        local DESC="Open file limit used: ${PCT_FILES_OPEN}% ($(hr_num ${STATUS_OPEN_FILES}) / $(hr_num ${VARIABLES_OPEN_FILES_LIMIT}))"
+        local OUTPUT="Open file limit used: ${PCT_FILES_OPEN}% ($(hr_num ${STATUS_OPEN_FILES}) / $(hr_num ${VARIABLES_OPEN_FILES_LIMIT}))"
     else
-        local DESC="No open file limit configured - nothing to check!"
+        local OUTPUT="No open file limit configured - nothing to check!"
     fi
-	echo "${PCT_FILES_OPEN}|%|${DESC}"
+	echo "${PCT_FILES_OPEN}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -907,13 +907,13 @@ pct_table_locks_immediate() {
     # Logic & calculations	
     if (( ${STATUS_TABLE_LOCKS_IMMEDIATE} > 0 )); then
         local PCT_TABLE_LOCKS_IMMEDIATE=$(pct -i ${STATUS_TABLE_LOCKS_IMMEDIATE} -t $(bc -l <<< " ${STATUS_TABLE_LOCKS_WAITED}+${STATUS_TABLE_LOCKS_IMMEDIATE}"))
-        local DESC="Table locks acquired immediately: ${PCT_TABLE_LOCKS_IMMEDIATE}% ($(hr_num ${STATUS_TABLE_LOCKS_IMMEDIATE}) immediate / $(hr_num $(( ${STATUS_TABLE_LOCKS_WAITED}+${STATUS_TABLE_LOCKS_IMMEDIATE} ))) total locks)"
+        local OUTPUT="Table locks acquired immediately: ${PCT_TABLE_LOCKS_IMMEDIATE}% ($(hr_num ${STATUS_TABLE_LOCKS_IMMEDIATE}) immediate / $(hr_num $(( ${STATUS_TABLE_LOCKS_WAITED}+${STATUS_TABLE_LOCKS_IMMEDIATE} ))) total locks)"
     else
         local PCT_TABLE_LOCKS_IMMEDIATE=100
-        local DESC="No table lock requests - nothing to check!"
+        local OUTPUT="No table lock requests - nothing to check!"
     fi
     # Return check value & description
-	echo "${PCT_TABLE_LOCKS_IMMEDIATE}|%|${DESC}"
+	echo "${PCT_TABLE_LOCKS_IMMEDIATE}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -928,17 +928,17 @@ pct_binlog_cache() {
     if ! [ "${VARIABLES_LOG_BIN}" = "OFF" ]; then
         if (( ${STATUS_BINLOG_CACHE_USE} > 0 )); then
             local PCT_BINLOG_CACHE=$(pct -i $(bc -l <<< "{STATUS_BINLOG_CACHE_USE}-${STATUS_BINLOG_CACHE_DISK_USE}") -t ${STATUS_BINLOG_CACHE_USE})
-            local DESC="Binlog cache memory access: ${PCT_BINLOG_CACHE}% ($(hr_num $(( ${STATUS_BINLOG_CACHE_USE} - ${STATUS_BINLOG_CACHE_DISK_USE} ))) memory / $(hr_num ${STATUS_BINLOG_CACHE_USE}) total)"
+            local OUTPUT="Binlog cache memory access: ${PCT_BINLOG_CACHE}% ($(hr_num $(( ${STATUS_BINLOG_CACHE_USE} - ${STATUS_BINLOG_CACHE_DISK_USE} ))) memory / $(hr_num ${STATUS_BINLOG_CACHE_USE}) total)"
         else
 	        local PCT_BINLOG_CACHE=100
-            local DESC="No binlog cache usage yet - nothing to check!"
+            local OUTPUT="No binlog cache usage yet - nothing to check!"
         fi
     else
 	    local PCT_BINLOG_CACHE=100
-        local DESC="Log bin not enabled - nothing to check!"	
+        local OUTPUT="Log bin not enabled - nothing to check!"	
     fi
     # Return check value & description
-	echo "${PCT_BINLOG_CACHE}|%|${DESC}"
+	echo "${PCT_BINLOG_CACHE}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -969,11 +969,11 @@ pct_write_queries() {
             local PCT_READS=$(pct -i ${TOTAL_READS} -t $(( ${TOTAL_READS}+${TOTAL_WRITES} )) )
             local PCT_WRITES=$(bc -l <<< "scale=2; 100 - ${PCT_READS}")			
         fi
-        local DESC="Reads: ${PCT_READS}%, writes: ${PCT_WRITES}% (from $(hr_num $(( ${TOTAL_READS}+${TOTAL_WRITES} ))) total queries)"
+        local OUTPUT="Reads: ${PCT_READS}%, writes: ${PCT_WRITES}% (from $(hr_num $(( ${TOTAL_READS}+${TOTAL_WRITES} ))) total queries)"
     else
-        local DESC="No queries at all - nothing to check!"
+        local OUTPUT="No queries at all - nothing to check!"
     fi
-	echo "${PCT_WRITES}|%|${DESC}"
+	echo "${PCT_WRITES}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -994,12 +994,12 @@ performance_metrics() {
     # Logic & calculations
     if (( ${STATUS_UPTIME} > 0 )); then
         local QPS=$(bc -l <<< "scale=2; ${STATUS_QUESTIONS} / ${STATUS_UPTIME}")
-        local DESC="Up for: $(hr_time ${STATUS_UPTIME}), $(hr_num ${STATUS_QUESTIONS}) q [${QPS} q/s], $(hr_num ${STATUS_CONNECTIONS}) conn, TX: ${STATUS_BYTES_SENT_PRETTY}, RX: ${STATUS_BYTES_RECEIVED_PRETTY}"
+        local OUTPUT="Up for: $(hr_time ${STATUS_UPTIME}), $(hr_num ${STATUS_QUESTIONS}) q [${QPS} q/s], $(hr_num ${STATUS_CONNECTIONS}) conn, TX: ${STATUS_BYTES_SENT_PRETTY}, RX: ${STATUS_BYTES_RECEIVED_PRETTY}"
     else
 	    # Impossible?
-        local DESC="Not enough uptime for calculations"
+        local OUTPUT="Not enough uptime for calculations"
     fi
-	echo "${QPS}||${DESC}"
+	echo "${QPS}||${OUTPUT}"
 }
 
 # ########################################################################
@@ -1015,12 +1015,12 @@ pct_keys_from_mem() {
     if (( ${STATUS_KEY_READ_REQUESTS} > 0 )); then
         local PCT_KEYS_FROM_MEM=$(pct -i ${STATUS_KEY_READS} -t ${STATUS_KEY_READ_REQUESTS})
         local PCT_KEYS_FROM_MEM=$(bc -l <<< "100-${PCT_KEYS_FROM_MEM}")
-        local DESC="Read key buffer hit rate: ${PCT_KEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_READ_REQUESTS}) cached / $(hr_num ${STATUS_KEY_READS}) reads)"
+        local OUTPUT="Read key buffer hit rate: ${PCT_KEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_READ_REQUESTS}) cached / $(hr_num ${STATUS_KEY_READS}) reads)"
     else
 	    local PCT_KEYS_FROM_MEM=100
-        local DESC="No read queries have run yet that would use keys - nothing to check!"
+        local OUTPUT="No read queries have run yet that would use keys - nothing to check!"
     fi
-	echo "${PCT_KEYS_FROM_MEM}|%|${DESC}"
+	echo "${PCT_KEYS_FROM_MEM}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -1033,12 +1033,12 @@ pct_wkeys_from_mem() {
     # Logic & calculations
     if (( ${STATUS_KEY_WRITE_REQUESTS} > 0 )); then
         local PCT_WKEYS_FROM_MEM=$(pct -i ${STATUS_KEY_WRITES} -t ${STATUS_KEY_WRITE_REQUESTS})
-        local DESC="Write key buffer hit rate: ${PCT_WKEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_WRITE_REQUESTS}) cached / $(hr_num ${STATUS_KEY_WRITES}) writes)"
+        local OUTPUT="Write key buffer hit rate: ${PCT_WKEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_WRITE_REQUESTS}) cached / $(hr_num ${STATUS_KEY_WRITES}) writes)"
     else
 		local PCT_WKEYS_FROM_MEM=100
-        local DESC="No write queries have run yet that would use keys - nothing to check!"
+        local OUTPUT="No write queries have run yet that would use keys - nothing to check!"
     fi
-	echo "${PCT_WKEYS_FROM_MEM}|%|${DESC}"
+	echo "${PCT_WKEYS_FROM_MEM}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -1056,16 +1056,16 @@ pct_aria_keys_from_mem() {
         if (( ${STATUS_ARIA_PAGECACHE_READ_REQUESTS} > 0 )); then
             local PCT_ARIA_KEYS_FROM_MEM=$(pct -i ${STATUS_ARIA_PAGECACHE_READS} -t ${STATUS_ARIA_PAGECACHE_READ_REQUESTS})
             local PCT_ARIA_KEYS_FROM_MEM=$(bc -l <<< "100-${PCT_ARIA_KEYS_FROM_MEM}")
-            local DESC="Aria pagecache hit rate: ${PCT_ARIA_KEYS_FROM_MEM}% $(hr_num ${STATUS_ARIA_PAGECACHE_READ_REQUESTS}) cached / $(hr_num ${STATUS_ARIA_PAGECACHE_READS}) reads)"
+            local OUTPUT="Aria pagecache hit rate: ${PCT_ARIA_KEYS_FROM_MEM}% $(hr_num ${STATUS_ARIA_PAGECACHE_READ_REQUESTS}) cached / $(hr_num ${STATUS_ARIA_PAGECACHE_READS}) reads)"
         else
             local PCT_ARIA_KEYS_FROM_MEM=100
-            local DESC="No queries have run yet that would use keys - nothing to check!"
+            local OUTPUT="No queries have run yet that would use keys - nothing to check!"
         fi
     else
         local PCT_ARIA_KEYS_FROM_MEM=100
-        local DESC="AriaDB is disabled - nothing to check!"
+        local OUTPUT="AriaDB is disabled - nothing to check!"
     fi
-	echo "${PCT_ARIA_KEYS_FROM_MEM}|%|${DESC}"
+	echo "${PCT_ARIA_KEYS_FROM_MEM}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -1081,12 +1081,12 @@ pct_read_efficiency() {
     if (( ${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS} > 0 )); then
         local HITS=$(bc -l <<< "${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS}-${STATUS_INNODB_BUFFER_POOL_READS}")
         local PCT_READ_EFFICIENCY=$(pct -i ${HITS} -t ${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS})
-        local DESC="InnoDB Read buffer efficiency: ${PCT_READ_EFFICIENCY}% ($(hr_num ${HITS}) hits / $(hr_num ${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS}) total)"
+        local OUTPUT="InnoDB Read buffer efficiency: ${PCT_READ_EFFICIENCY}% ($(hr_num ${HITS}) hits / $(hr_num ${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS}) total)"
     else
         local PCT_READ_EFFICIENCY=100
-        local DESC="No InnoDB log read requests yet - nothing to check!"
+        local OUTPUT="No InnoDB log read requests yet - nothing to check!"
     fi
-	echo "${PCT_READ_EFFICIENCY}|%|${DESC}"
+	echo "${PCT_READ_EFFICIENCY}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -1100,12 +1100,12 @@ pct_write_efficiency() {
     if (( ${STATUS_INNODB_LOG_WRITE_REQUESTS} > 0 )); then
         local HITS=$(bc -l <<< "${STATUS_INNODB_LOG_WRITE_REQUESTS}-${STATUS_INNODB_LOG_WRITES}")
         local PCT_WRITE_EFFICIENCY=$(pct -i ${HITS} -t ${STATUS_INNODB_LOG_WRITE_REQUESTS})
-        local DESC="InnoDB Write Log efficiency: ${PCT_WRITE_EFFICIENCY}% ($(hr_num ${HITS}) hits / $(hr_num ${STATUS_INNODB_LOG_WRITE_REQUESTS}) total)"
+        local OUTPUT="InnoDB Write Log efficiency: ${PCT_WRITE_EFFICIENCY}% ($(hr_num ${HITS}) hits / $(hr_num ${STATUS_INNODB_LOG_WRITE_REQUESTS}) total)"
     else
         local PCT_WRITE_EFFICIENCY=100
-        local DESC="No InnoDB log writes requests yet - nothing to check!"
+        local OUTPUT="No InnoDB log writes requests yet - nothing to check!"
     fi
-	echo "${PCT_WRITE_EFFICIENCY}|%|${DESC}"
+	echo "${PCT_WRITE_EFFICIENCY}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -1123,11 +1123,11 @@ pct_innodb_buffer_used() {
     local BUFFER_USED=$(bc -l <<< "${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL}-${STATUS_INNODB_BUFFER_POOL_PAGES_FREE}")
     local PCT_INNODB_BUFFER_USED=$(pct -i ${BUFFER_USED} -t ${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL})
     if (( ${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL} > 0 )); then
-        local DESC="InnoDB buffer pool page usage: ${PCT_INNODB_BUFFER_USED}% ($(hr_num ${BUFFER_USED}) used / $(hr_num ${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL}) total)"
+        local OUTPUT="InnoDB buffer pool page usage: ${PCT_INNODB_BUFFER_USED}% ($(hr_num ${BUFFER_USED}) used / $(hr_num ${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL}) total)"
     else
-        local DESC="No InnoDB buffer pool pages at all - nothing to check!"
+        local OUTPUT="No InnoDB buffer pool pages at all - nothing to check!"
     fi
-	echo "${PCT_INNODB_BUFFER_USED}|%|${DESC}"
+	echo "${PCT_INNODB_BUFFER_USED}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -1141,11 +1141,11 @@ innodb_log_waits() {
     local PCT_INNODB_LOG_WAITS=$(pct -i ${STATUS_INNODB_LOG_WAITS} -t ${STATUS_INNODB_LOG_WRITES})
 
     if (( ${STATUS_INNODB_LOG_WRITES} > 0 )); then
-        local DESC="InnoDB log waits: ${PCT_INNODB_LOG_WAITS}% ($(hr_num ${STATUS_INNODB_LOG_WAITS}) waits / $(hr_num ${STATUS_INNODB_LOG_WRITES}) writes)"
+        local OUTPUT="InnoDB log waits: ${PCT_INNODB_LOG_WAITS}% ($(hr_num ${STATUS_INNODB_LOG_WAITS}) waits / $(hr_num ${STATUS_INNODB_LOG_WRITES}) writes)"
     else
-        local DESC="No InnoDB log writes requests yet - nothing to check!"
+        local OUTPUT="No InnoDB log writes requests yet - nothing to check!"
     fi
-	echo "${PCT_INNODB_LOG_WAITS}|%|${DESC}"
+	echo "${PCT_INNODB_LOG_WAITS}|%|${OUTPUT}"
 }
 
 # ########################################################################
@@ -1197,7 +1197,7 @@ recommendations() {
 	
 	local 
     if (( ${#RECOMMENDATIONS} == 0 )) && (( ${#ADJUST_VARIABLES} == 0 )); then
-        local DESC="No additional performance recommendations are available - well done!"
+        local OUTPUT="No additional performance recommendations are available - well done!"
     else
         # Get max peak memory by calling the 'pct_max_physical_memory' function with
         # the '-d "val"' option to only retrieve the value.
@@ -1206,10 +1206,10 @@ recommendations() {
         if (( $(bc -l <<< "${MAX_PEAK_MEMORY} < 90") )); then
             local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
-        local DESC="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
-		local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS}\n${ADJUST_VARIABLES_DETAILS}"
+        local OUTPUT="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
+		local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS} ${ADJUST_VARIABLES_DETAILS}"
     fi
-	echo "${RECOMMENDATIONS_COUNT}||${DESC}|${LONG_OUTPUT}"
+	echo "${RECOMMENDATIONS_COUNT}||${OUTPUT}|${LONG_OUTPUT}"
 }
 
 # ========================================================================
@@ -1226,13 +1226,13 @@ recommendations() {
 # the file is loaded only once.
 LOAD_JSON_FILE=true
 
-OUTPUT=$(main "$@")
-case "${OUTPUT}" in
+MRPE_OUTPUT=$(main "$@")
+case "${MRPE_OUTPUT}" in
     UNK*)  EXITSTATUS=$STATE_UNKNOWN;  ;;
     OK*)   EXITSTATUS=$STATE_OK;       ;;
     WARN*) EXITSTATUS=$STATE_WARNING;  ;;
     CRIT*) EXITSTATUS=$STATE_CRITICAL; ;;
     *)     EXITSTATUS=$STATE_UNKNOWN;  ;;
 esac
-echo "${OUTPUT}"
+echo "${MRPE_OUTPUT}"
 exit $EXITSTATUS
