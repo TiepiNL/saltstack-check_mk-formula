@@ -1164,7 +1164,7 @@ recommendations() {
 # @TODO: @BUG: this counter will return an incorrect result if the strings in
 # the 'array' contain commas (and they do).
 	    local COMMAS_ONLY="${RECOMMENDATIONS//[^,]}"
-        local RECOMMENDATIONS_COUNT=$(( ${#ADJUST_VARIABLES}+1 ))
+        local RECOMMENDATIONS_COUNT=$(( ${#COMMAS_ONLY}+1 ))
         local RECOMMENDATIONS_STATUS="General recommendations available: ${RECOMMENDATIONS_COUNT}."
 		local RECOMMENDATIONS_DETAILS="Recommendations: ${RECOMMENDATIONS}"
     else
@@ -1181,7 +1181,7 @@ recommendations() {
 		# amount of commas + one (there's always one separator less
 		# than there are values).
 	    local COMMAS_ONLY="${ADJUST_VARIABLES//[^,]}"
-        local ADJUST_VARIABLES_COUNT=$(( ${#ADJUST_VARIABLES}+1 ))
+        local ADJUST_VARIABLES_COUNT=$(( ${#COMMAS_ONLY}+1 ))
         local ADJUST_VARIABLES_STATUS="Variable adjustments recommended: ${ADJUST_VARIABLES_COUNT}."
 		local ADJUST_VARIABLES_DETAILS="Recommended variables to adjust: ${ADJUST_VARIABLES}."
 
@@ -1199,7 +1199,7 @@ recommendations() {
         if (( $(bc -l <<< "${MAX_PEAK_MEMORY} < 90") )); then
             local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
-        local DESC="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}\\n ${RECOMMENDATIONS_DETAILS}\\n${ADJUST_VARIABLES_DETAILS}"
+        local DESC="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}\n ${RECOMMENDATIONS_DETAILS}\n${ADJUST_VARIABLES_DETAILS}"
     fi
 	echo "${RECOMMENDATIONS_COUNT}||${DESC}"
 }
