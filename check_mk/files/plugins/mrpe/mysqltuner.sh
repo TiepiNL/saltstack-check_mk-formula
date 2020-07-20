@@ -180,7 +180,7 @@ main() {
 	local LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
 
 #
-local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP} ${OPT_CRIT}, warning: ${OPT_COMP} ${OPT_WARN}."
+local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP}${OPT_CRIT}, warning: ${OPT_COMP}${OPT_WARN}."
 
     # Compare the check value with warning/critical thresholds
     # to define the check state.
@@ -1208,7 +1208,8 @@ recommendations() {
         if (( $(bc -l <<< "${MAX_PEAK_MEMORY} < 90") )); then
             local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
-        local OUTPUT="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
+		local OUTPUT="temp test"
+        #local OUTPUT="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
 		local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS} ${ADJUST_VARIABLES_DETAILS}"
     fi
 	echo "${RECOMMENDATIONS_COUNT}||${OUTPUT}|${LONG_OUTPUT}"
