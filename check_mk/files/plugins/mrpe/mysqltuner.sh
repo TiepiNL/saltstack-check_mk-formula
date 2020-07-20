@@ -1124,17 +1124,19 @@ performance_metrics() {
 # ########################################################################
 pct_keys_from_mem() {
     # Declare local variables.
+    local STATUS_KEY_READ_REQUESTS; local STATUS_KEY_READS
+    local PCT_KEYS_FROM_MEM; local OUTPUT
     # Set variables with JSON data.
-    local STATUS_KEY_READ_REQUESTS=$(process_json -k "Status.Key_read_requests")
-    local STATUS_KEY_READS=$(process_json -k "Status.Key_reads")
+    STATUS_KEY_READ_REQUESTS=$(process_json -k "Status.Key_read_requests")
+    STATUS_KEY_READS=$(process_json -k "Status.Key_reads")
     # Logic & calculations
-    if (( ${STATUS_KEY_READ_REQUESTS} > 0 )); then
-        local PCT_KEYS_FROM_MEM=$(pct -i ${STATUS_KEY_READS} -t ${STATUS_KEY_READ_REQUESTS})
-        local PCT_KEYS_FROM_MEM=$(bc -l <<< "100-${PCT_KEYS_FROM_MEM}")
-        local OUTPUT="Read key buffer hit rate: ${PCT_KEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_READ_REQUESTS}) cached / $(hr_num ${STATUS_KEY_READS}) reads)"
+    if (( STATUS_KEY_READ_REQUESTS > 0 )); then
+        PCT_KEYS_FROM_MEM=$(pct -i "${STATUS_KEY_READS}" -t "${STATUS_KEY_READ_REQUESTS}")
+        PCT_KEYS_FROM_MEM=$(bc -l <<< "100-${PCT_KEYS_FROM_MEM}")
+        OUTPUT="Read key buffer hit rate: ${PCT_KEYS_FROM_MEM}% ($(hr_num "${STATUS_KEY_READ_REQUESTS}") cached / $(hr_num "${STATUS_KEY_READS}") reads)"
     else
-	    local PCT_KEYS_FROM_MEM=100
-        local OUTPUT="No read queries have run yet that would use keys - nothing to check!"
+	    PCT_KEYS_FROM_MEM=100
+        OUTPUT="No read queries have run yet that would use keys - nothing to check!"
     fi
 	echo "${PCT_KEYS_FROM_MEM}|%|${OUTPUT}"
 }
@@ -1144,16 +1146,18 @@ pct_keys_from_mem() {
 # ########################################################################
 pct_wkeys_from_mem() {
     # Declare local variables.
+    local STATUS_KEY_WRITE_REQUESTS; local STATUS_KEY_WRITES
+    local PCT_WKEYS_FROM_MEM; local OUTPUT
     # Set variables with JSON data.
-    local STATUS_KEY_WRITE_REQUESTS=$(process_json -k "Status.Key_write_requests")
-    local STATUS_KEY_WRITES=$(process_json -k "Status.Key_writes")
+    STATUS_KEY_WRITE_REQUESTS=$(process_json -k "Status.Key_write_requests")
+    STATUS_KEY_WRITES=$(process_json -k "Status.Key_writes")
     # Logic & calculations
-    if (( ${STATUS_KEY_WRITE_REQUESTS} > 0 )); then
-        local PCT_WKEYS_FROM_MEM=$(pct -i ${STATUS_KEY_WRITES} -t ${STATUS_KEY_WRITE_REQUESTS})
-        local OUTPUT="Write key buffer hit rate: ${PCT_WKEYS_FROM_MEM}% ($(hr_num ${STATUS_KEY_WRITE_REQUESTS}) cached / $(hr_num ${STATUS_KEY_WRITES}) writes)"
+    if (( STATUS_KEY_WRITE_REQUESTS > 0 )); then
+        PCT_WKEYS_FROM_MEM=$(pct -i "${STATUS_KEY_WRITES}" -t "${STATUS_KEY_WRITE_REQUESTS}")
+        OUTPUT="Write key buffer hit rate: ${PCT_WKEYS_FROM_MEM}% ($(hr_num "${STATUS_KEY_WRITE_REQUESTS}") cached / $(hr_num "${STATUS_KEY_WRITES}") writes)"
     else
-		local PCT_WKEYS_FROM_MEM=100
-        local OUTPUT="No write queries have run yet that would use keys - nothing to check!"
+		PCT_WKEYS_FROM_MEM=100
+        OUTPUT="No write queries have run yet that would use keys - nothing to check!"
     fi
 	echo "${PCT_WKEYS_FROM_MEM}|%|${OUTPUT}"
 }
@@ -1165,23 +1169,26 @@ pct_wkeys_from_mem() {
 # ########################################################################
 pct_aria_keys_from_mem() {
     # Declare local variables.
+    local VARIABLES_HAVE_AREA; local STATUS_ARIA_PAGECACHE_READ_REQUESTS
+    local STATUS_ARIA_PAGECACHE_READS
+    local PCT_ARIA_KEYS_FROM_MEM; local OUTPUT
     # Set variables with JSON data.
-    local VARIABLES_HAVE_AREA=$(process_json -k "Variables.have_aria")
-    local STATUS_ARIA_PAGECACHE_READ_REQUESTS=$(process_json -k "Status.Aria_pagecache_read_requests" -n 0)
-    local STATUS_ARIA_PAGECACHE_READS=$(process_json -k "Status.Aria_pagecache_reads" -n 0)
+    VARIABLES_HAVE_AREA=$(process_json -k "Variables.have_aria")
+    STATUS_ARIA_PAGECACHE_READ_REQUESTS=$(process_json -k "Status.Aria_pagecache_read_requests" -n 0)
+    STATUS_ARIA_PAGECACHE_READS=$(process_json -k "Status.Aria_pagecache_reads" -n 0)
     # Logic & calculations
     if [ "${VARIABLES_HAVE_AREA}" = "YES" ]; then
-        if (( ${STATUS_ARIA_PAGECACHE_READ_REQUESTS} > 0 )); then
-            local PCT_ARIA_KEYS_FROM_MEM=$(pct -i ${STATUS_ARIA_PAGECACHE_READS} -t ${STATUS_ARIA_PAGECACHE_READ_REQUESTS})
-            local PCT_ARIA_KEYS_FROM_MEM=$(bc -l <<< "100-${PCT_ARIA_KEYS_FROM_MEM}")
-            local OUTPUT="Aria pagecache hit rate: ${PCT_ARIA_KEYS_FROM_MEM}% $(hr_num ${STATUS_ARIA_PAGECACHE_READ_REQUESTS}) cached / $(hr_num ${STATUS_ARIA_PAGECACHE_READS}) reads)"
+        if (( STATUS_ARIA_PAGECACHE_READ_REQUESTS > 0 )); then
+            PCT_ARIA_KEYS_FROM_MEM=$(pct -i "${STATUS_ARIA_PAGECACHE_READS}" -t "${STATUS_ARIA_PAGECACHE_READ_REQUESTS}")
+            PCT_ARIA_KEYS_FROM_MEM=$(bc -l <<< "100-${PCT_ARIA_KEYS_FROM_MEM}")
+            OUTPUT="Aria pagecache hit rate: ${PCT_ARIA_KEYS_FROM_MEM}% $(hr_num "${STATUS_ARIA_PAGECACHE_READ_REQUESTS}") cached / $(hr_num "${STATUS_ARIA_PAGECACHE_READS}") reads)"
         else
-            local PCT_ARIA_KEYS_FROM_MEM=100
-            local OUTPUT="No queries have run yet that would use keys - nothing to check!"
+            PCT_ARIA_KEYS_FROM_MEM=100
+            OUTPUT="No queries have run yet that would use keys - nothing to check!"
         fi
     else
-        local PCT_ARIA_KEYS_FROM_MEM=100
-        local OUTPUT="AriaDB is disabled - nothing to check!"
+        PCT_ARIA_KEYS_FROM_MEM=100
+        OUTPUT="AriaDB is disabled - nothing to check!"
     fi
 	echo "${PCT_ARIA_KEYS_FROM_MEM}|%|${OUTPUT}"
 }
@@ -1193,17 +1200,19 @@ pct_aria_keys_from_mem() {
 # ########################################################################
 pct_read_efficiency() {
     # Declare local variables.
+    local STATUS_INNODB_BUFFER_POOL_READ_REQUESTS; local STATUS_INNODB_BUFFER_POOL_READS
+    local HITS; local PCT_READ_EFFICIENCY; local OUTPUT
     # Set variables with JSON data.
-    local STATUS_INNODB_BUFFER_POOL_READ_REQUESTS=$(process_json -k "Status.Innodb_buffer_pool_read_requests")
-    local STATUS_INNODB_BUFFER_POOL_READS=$(process_json -k "Status.Innodb_buffer_pool_reads")
+    STATUS_INNODB_BUFFER_POOL_READ_REQUESTS=$(process_json -k "Status.Innodb_buffer_pool_read_requests")
+    STATUS_INNODB_BUFFER_POOL_READS=$(process_json -k "Status.Innodb_buffer_pool_reads")
     # Logic & calculations
-    if (( ${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS} > 0 )); then
-        local HITS=$(bc -l <<< "${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS}-${STATUS_INNODB_BUFFER_POOL_READS}")
-        local PCT_READ_EFFICIENCY=$(pct -i ${HITS} -t ${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS})
-        local OUTPUT="InnoDB Read buffer efficiency: ${PCT_READ_EFFICIENCY}% ($(hr_num ${HITS}) hits / $(hr_num ${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS}) total)"
+    if (( STATUS_INNODB_BUFFER_POOL_READ_REQUESTS > 0 )); then
+        HITS=$(bc -l <<< "${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS}-${STATUS_INNODB_BUFFER_POOL_READS}")
+        PCT_READ_EFFICIENCY=$(pct -i "${HITS}" -t "${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS}")
+        OUTPUT="InnoDB Read buffer efficiency: ${PCT_READ_EFFICIENCY}% ($(hr_num "${HITS}") hits / $(hr_num "${STATUS_INNODB_BUFFER_POOL_READ_REQUESTS}") total)"
     else
-        local PCT_READ_EFFICIENCY=100
-        local OUTPUT="No InnoDB log read requests yet - nothing to check!"
+        PCT_READ_EFFICIENCY=100
+        OUTPUT="No InnoDB log read requests yet - nothing to check!"
     fi
 	echo "${PCT_READ_EFFICIENCY}|%|${OUTPUT}"
 }
@@ -1213,17 +1222,19 @@ pct_read_efficiency() {
 # ########################################################################
 pct_write_efficiency() {
     # Declare local variables.
+    local STATUS_INNODB_LOG_WRITE_REQUESTS; local STATUS_INNODB_LOG_WRITES
+local HITS; local PCT_WRITE_EFFICIENCY; local OUTPUT
     # Set variables with JSON data.
-    local STATUS_INNODB_LOG_WRITE_REQUESTS=$(process_json -k "Status.Innodb_log_write_requests")
-    local STATUS_INNODB_LOG_WRITES=$(process_json -k "Status.Innodb_log_writes")
+    STATUS_INNODB_LOG_WRITE_REQUESTS=$(process_json -k "Status.Innodb_log_write_requests")
+    STATUS_INNODB_LOG_WRITES=$(process_json -k "Status.Innodb_log_writes")
     # Logic & calculations
-    if (( ${STATUS_INNODB_LOG_WRITE_REQUESTS} > 0 )); then
-        local HITS=$(bc -l <<< "${STATUS_INNODB_LOG_WRITE_REQUESTS}-${STATUS_INNODB_LOG_WRITES}")
-        local PCT_WRITE_EFFICIENCY=$(pct -i ${HITS} -t ${STATUS_INNODB_LOG_WRITE_REQUESTS})
-        local OUTPUT="InnoDB write log efficiency: ${PCT_WRITE_EFFICIENCY}% ($(hr_num ${HITS}) hits / $(hr_num ${STATUS_INNODB_LOG_WRITE_REQUESTS}) total)"
+    if (( STATUS_INNODB_LOG_WRITE_REQUESTS > 0 )); then
+        HITS=$(bc -l <<< "${STATUS_INNODB_LOG_WRITE_REQUESTS}-${STATUS_INNODB_LOG_WRITES}")
+        PCT_WRITE_EFFICIENCY=$(pct -i "${HITS}" -t "${STATUS_INNODB_LOG_WRITE_REQUESTS}")
+        OUTPUT="InnoDB write log efficiency: ${PCT_WRITE_EFFICIENCY}% ($(hr_num "${HITS}") hits / $(hr_num "${STATUS_INNODB_LOG_WRITE_REQUESTS}") total)"
     else
-        local PCT_WRITE_EFFICIENCY=100
-        local OUTPUT="No InnoDB log writes requests yet - nothing to check!"
+        PCT_WRITE_EFFICIENCY=100
+        OUTPUT="No InnoDB log writes requests yet - nothing to check!"
     fi
 	echo "${PCT_WRITE_EFFICIENCY}|%|${OUTPUT}"
 }
@@ -1237,16 +1248,19 @@ pct_innodb_buffer_used() {
 	# own interpretation here.
 
     # Declare local variables.
+    local STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL; local STATUS_INNODB_BUFFER_POOL_PAGES_FREE
+    local BUFFER_USED; local PCT_INNODB_BUFFER_USED; local OUTPUT
     # Set variables with JSON data.
-    local STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL=$(process_json -k "Status.Innodb_buffer_pool_pages_total")
-    local STATUS_INNODB_BUFFER_POOL_PAGES_FREE=$(process_json -k "Status.Innodb_buffer_pool_pages_free")
+    STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL=$(process_json -k "Status.Innodb_buffer_pool_pages_total")
+    STATUS_INNODB_BUFFER_POOL_PAGES_FREE=$(process_json -k "Status.Innodb_buffer_pool_pages_free")
     # Logic & calculations
-    local BUFFER_USED=$(bc -l <<< "${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL}-${STATUS_INNODB_BUFFER_POOL_PAGES_FREE}")
-    local PCT_INNODB_BUFFER_USED=$(pct -i ${BUFFER_USED} -t ${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL})
-    if (( ${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL} > 0 )); then
-        local OUTPUT="InnoDB buffer pool page usage: ${PCT_INNODB_BUFFER_USED}% ($(hr_num ${BUFFER_USED}) used / $(hr_num ${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL}) total)"
+    BUFFER_USED=$(bc -l <<< "${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL}-${STATUS_INNODB_BUFFER_POOL_PAGES_FREE}")
+    PCT_INNODB_BUFFER_USED=$(pct -i "${BUFFER_USED}" -t "${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL}")
+    if (( STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL > 0 )); then
+        OUTPUT="InnoDB buffer pool page usage: ${PCT_INNODB_BUFFER_USED}% ($(hr_num "${BUFFER_USED}") used / $(hr_num "${STATUS_INNODB_BUFFER_POOL_PAGES_TOTAL}") total)"
     else
-        local OUTPUT="No InnoDB buffer pool pages at all - nothing to check!"
+        # Should be impossible?
+        OUTPUT="No InnoDB buffer pool pages at all - nothing to check!"
     fi
 	echo "${PCT_INNODB_BUFFER_USED}|%|${OUTPUT}"
 }
@@ -1256,16 +1270,18 @@ pct_innodb_buffer_used() {
 # ########################################################################
 innodb_log_waits() {
     # Declare local variables.
+    local STATUS_INNODB_LOG_WAITS; local STATUS_INNODB_LOG_WRITES
+    local PCT_INNODB_LOG_WAITS; local OUTPUT
     # Set variables with JSON data.
-    local STATUS_INNODB_LOG_WAITS=$(process_json -k "Status.Innodb_log_waits" -n 0)
-    local STATUS_INNODB_LOG_WRITES=$(process_json -k "Status.Innodb_log_writes")
+    STATUS_INNODB_LOG_WAITS=$(process_json -k "Status.Innodb_log_waits" -n 0)
+    STATUS_INNODB_LOG_WRITES=$(process_json -k "Status.Innodb_log_writes")
     # Logic & calculations
-    local PCT_INNODB_LOG_WAITS=$(pct -i ${STATUS_INNODB_LOG_WAITS} -t ${STATUS_INNODB_LOG_WRITES})
+    PCT_INNODB_LOG_WAITS=$(pct -i "${STATUS_INNODB_LOG_WAITS}" -t "${STATUS_INNODB_LOG_WRITES}")
 
-    if (( ${STATUS_INNODB_LOG_WRITES} > 0 )); then
-        local OUTPUT="InnoDB log waits: ${PCT_INNODB_LOG_WAITS}% ($(hr_num ${STATUS_INNODB_LOG_WAITS}) waits / $(hr_num ${STATUS_INNODB_LOG_WRITES}) writes)"
+    if (( STATUS_INNODB_LOG_WRITES > 0 )); then
+        OUTPUT="InnoDB log waits: ${PCT_INNODB_LOG_WAITS}% ($(hr_num "${STATUS_INNODB_LOG_WAITS}") waits / $(hr_num "${STATUS_INNODB_LOG_WRITES}") writes)"
     else
-        local OUTPUT="No InnoDB log writes requests yet - nothing to check!"
+        OUTPUT="No InnoDB log writes requests yet - nothing to check!"
     fi
 	echo "${PCT_INNODB_LOG_WAITS}|%|${OUTPUT}"
 }
@@ -1275,16 +1291,22 @@ innodb_log_waits() {
 # ########################################################################
 recommendations() {
     # Declare local variables.
+    local RECOMMENDATIONS; local ADJUST_VARIABLES
+    local COMMAS_ONLY; local RECOMMENDATIONS_COUNT
+    local RECOMMENDATIONS_STATUS; local RECOMMENDATIONS_DETAILS
+    local ADJUST_VARIABLES_COUNT; local ADJUST_VARIABLES_STATUS
+    local ADJUST_VARIABLES_DETAILS; local MAX_PEAK_MEMORY
+    local OUTPUT
     # Set variables with JSON data.
-    local RECOMMENDATIONS=$(process_json -k "Recommendations")
-    local ADJUST_VARIABLES=$(process_json -k '"Adjust variables"')
+    RECOMMENDATIONS=$(process_json -k "Recommendations")
+    ADJUST_VARIABLES=$(process_json -k '"Adjust variables"')
     # Logic & calculations
     # The json data (strings) can't be processed as an array.
     # We strip the brackets ([]), and (mis?)use xargs to get rid of
 	# newlines, multiple spaces, and the double quotes.
-    local RECOMMENDATIONS="${RECOMMENDATIONS#\[}"
-    local RECOMMENDATIONS="${RECOMMENDATIONS%\]}"
-    local RECOMMENDATIONS=$(echo "${RECOMMENDATIONS}" | xargs)
+    RECOMMENDATIONS="${RECOMMENDATIONS#\[}"
+    RECOMMENDATIONS="${RECOMMENDATIONS%\]}"
+    RECOMMENDATIONS=$(echo "${RECOMMENDATIONS}" | xargs)
     if (( ${#RECOMMENDATIONS} > 0 )); then
         # Remove all non-comma chars. The amount of values is the 
 		# amount of commas + one (there's always one separator less
@@ -1293,43 +1315,43 @@ recommendations() {
 # the 'array' contain commas (and they do). If this is fixed - by only looking
 # for commas with a leading double quote - then the multiline output can have a
 # @REFACTOR: to a list instead of a single string.
-	    local COMMAS_ONLY="${RECOMMENDATIONS//[^,]}"
-        local RECOMMENDATIONS_COUNT=$(( ${#COMMAS_ONLY}+1 ))
-        local RECOMMENDATIONS_STATUS="General recommendations available: ${RECOMMENDATIONS_COUNT}."
-		local RECOMMENDATIONS_DETAILS="Recommendations: ${RECOMMENDATIONS}."
+	    COMMAS_ONLY="${RECOMMENDATIONS//[^,]}"
+        RECOMMENDATIONS_COUNT=$(( ${#COMMAS_ONLY}+1 ))
+        RECOMMENDATIONS_STATUS="General recommendations available: ${RECOMMENDATIONS_COUNT}."
+		RECOMMENDATIONS_DETAILS="Recommendations: ${RECOMMENDATIONS}."
     else
         # No recommendations - all good!
-        local RECOMMENDATIONS_COUNT=0
+        RECOMMENDATIONS_COUNT=0
     fi
 	
     # Repeat logic for adjustments.
-    local ADJUST_VARIABLES="${ADJUST_VARIABLES#\[}"
-    local ADJUST_VARIABLES="${ADJUST_VARIABLES%\]}"
-    local ADJUST_VARIABLES=$(echo "${ADJUST_VARIABLES}" | xargs)
+    ADJUST_VARIABLES="${ADJUST_VARIABLES#\[}"
+    ADJUST_VARIABLES="${ADJUST_VARIABLES%\]}"
+    ADJUST_VARIABLES=$(echo "${ADJUST_VARIABLES}" | xargs)
     if (( ${#ADJUST_VARIABLES} > 0 )); then
         # Remove all non-comma chars. The amount of values is the 
 		# amount of commas + one (there's always one separator less
 		# than there are values).
-	    local COMMAS_ONLY="${ADJUST_VARIABLES//[^,]}"
-        local ADJUST_VARIABLES_COUNT=$(( ${#COMMAS_ONLY}+1 ))
-        local ADJUST_VARIABLES_STATUS="Variable adjustments recommended: ${ADJUST_VARIABLES_COUNT}."
-		local ADJUST_VARIABLES_DETAILS="Recommended variables to adjust: ${ADJUST_VARIABLES}."
+	    COMMAS_ONLY="${ADJUST_VARIABLES//[^,]}"
+        ADJUST_VARIABLES_COUNT=$(( ${#COMMAS_ONLY}+1 ))
+        ADJUST_VARIABLES_STATUS="Variable adjustments recommended: ${ADJUST_VARIABLES_COUNT}."
+		ADJUST_VARIABLES_DETAILS="Recommended variables to adjust: ${ADJUST_VARIABLES}."
 
     # else: No recommended variables to adjust - all good!
     fi
  
     if (( ${#RECOMMENDATIONS} == 0 )) && (( ${#ADJUST_VARIABLES} == 0 )); then
-        local OUTPUT="No additional performance recommendations are available - well done!"
+        OUTPUT="No additional performance recommendations are available - well done!"
     else
         # Get max peak memory by calling the 'pct_max_physical_memory' function with
         # the '-d "val"' option to only retrieve the value.
-        local MAX_PEAK_MEMORY=$(pct_max_physical_memory -d "val")
+        MAX_PEAK_MEMORY=$(pct_max_physical_memory -d "val")
 
         if (( $(bc -l <<< "${MAX_PEAK_MEMORY} < 90") )); then
-            local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
+            ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
-        local OUTPUT="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
-		local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS} ${ADJUST_VARIABLES_DETAILS}"
+        OUTPUT="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
+		LONG_OUTPUT="${RECOMMENDATIONS_DETAILS} ${ADJUST_VARIABLES_DETAILS}"
     fi
 	echo "${RECOMMENDATIONS_COUNT}||${OUTPUT}|${LONG_OUTPUT}"
 }
