@@ -27,6 +27,7 @@ check_mk-config_dir-config-file-file-directory:
   file.directory:
     - name: {{ check_mk.agent.config_dir }}/
 
+
 # @TODO: docs
 {%- if check_mk.agent.encrypted %}
 check_mk-encryption_cfg-config-file-file-managed:
@@ -37,7 +38,7 @@ check_mk-encryption_cfg-config-file-file-managed:
         ENCRYPTED=yes
         PASSPHRASE={{ check_mk.agent.encryption_passphrase }}
     # Secure the file against reading by other users.
-    - mode: 600
+    - mode: 400
     - require:
 {%- if not check_mk.agent.use_packages_formula %}
       - sls: {{ sls_package_install }}
