@@ -138,4 +138,20 @@ check_mk-mysql-monitoring-mrpe-mysql-file-blockreplace:
 {%- endif %}
       - sls: {{ sls_mrpe }}
 
-# @TODO: add check to monitor json file timestamp
+
+# Monitor if the mysqltuner JSON output file is actual.
+check_mk-mysql-fileinfo-mrpe-mysql-file-blockreplace:
+  file.blockreplace:
+    - name: {{ check_mk.agent.config_dir }}/fileinfo.cfg
+    - marker_start: '# start-mysql-monitoring-include'
+    - marker_end: '# end-mysql-monitoring-include'
+    - content: |
+        {{ check_mk.agent.mrpe.mysql.mysqltuner.output_file }}
+    - append_if_not_found: true
+    - backup: false
+    - require:
+{%- if not check_mk.agent.use_packages_formula %}
+      - sls: {{ sls_package_install }}
+{%- else %}
+      - sls: packages.pkgs
+{%- endif %}
