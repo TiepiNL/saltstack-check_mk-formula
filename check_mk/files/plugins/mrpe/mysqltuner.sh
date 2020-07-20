@@ -171,7 +171,7 @@ main() {
     # split the check output based on the delimiter '|'.
     IFS_OLD=$IFS
     IFS="|"
-    local CHECK_OUTPUT_ARR=(${CHECK_OUTPUT})
+	read -r -a CHECK_OUTPUT_ARR <<< "${CHECK_OUTPUT}"
     IFS=$IFS_OLD
 
     local VAL="${CHECK_OUTPUT_ARR[0]}"
