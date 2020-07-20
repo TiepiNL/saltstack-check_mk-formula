@@ -40,6 +40,7 @@ main() {
             -a|--action)         shift; local OPT_CHCK="${1}"; shift; ;;
             -c|--critical)       shift; local OPT_CRIT="${1}"; shift; ;;
             -C|--compare)        shift; local OPT_COMP="${1}"; shift; ;;
+            -d|--debug)          OPT_DEBUG=true; ;;
             -w|--warning)        shift; local OPT_WARN="${1}"; shift; ;;
             -*)                  echo "Unknown option ${o}."; exit 1; ;;
         esac
@@ -163,6 +164,10 @@ main() {
             ;;
     esac
 
+    if [ $DEBUG ]; then
+        echo "CHECK_OUTPUT: ${CHECK_OUTPUT}" >> /var/log/mysqltuner.log
+    fi
+
     if [ "${OPT_ERR}" ]; then
         echo "Error: $OPT_ERR."
         exit 1
@@ -178,6 +183,13 @@ main() {
     local UOM="${CHECK_OUTPUT_ARR[1]}"  # unit of measurement
     local OUTPUT="${CHECK_OUTPUT_ARR[2]}"
 	local LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
+
+    if [ $DEBUG ]; then
+        echo "VAL: ${VAL}" >> /var/log/mysqltuner.log
+        echo "UOM: ${UOM}" >> /var/log/mysqltuner.log
+        echo "OUTPUT: ${OUTPUT}" >> /var/log/mysqltuner.log
+        echo "LONG_OUTPUT: ${LONG_OUTPUT}" >> /var/log/mysqltuner.log
+    fi
 
     # Compare the check value with warning/critical thresholds
     # to define the check state.
