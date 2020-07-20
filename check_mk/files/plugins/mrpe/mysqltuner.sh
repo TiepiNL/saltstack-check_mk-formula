@@ -26,7 +26,6 @@ STATE_OK=0
 STATE_WARNING=1
 STATE_CRITICAL=2
 STATE_UNKNOWN=3
-STATE_DEPENDENT=4
 
 JSON_FILE="/var/log/mysqltuner_output.json"
 
@@ -81,85 +80,86 @@ main() {
         *)
             ;;
     esac
-	
+
+    local CHECK_OUTPUT	
     case "${OPT_CHCK}" in
         'pct_slow_queries')
-            local CHECK_OUTPUT=$(pct_slow_queries)
+            CHECK_OUTPUT=$(pct_slow_queries)
             ;;
         'fragmented_tables')
-            local CHECK_OUTPUT=$(fragmented_tables)
+            CHECK_OUTPUT=$(fragmented_tables)
             ;;
         'pct_connections_used')
-            local CHECK_OUTPUT=$(pct_connections_used)
+            CHECK_OUTPUT=$(pct_connections_used)
             ;;
         'pct_connections_aborted')
-            local CHECK_OUTPUT=$(pct_connections_aborted)
+            CHECK_OUTPUT=$(pct_connections_aborted)
             ;;
         'pct_max_used_memory')
-            local CHECK_OUTPUT=$(pct_max_used_memory)
+            CHECK_OUTPUT=$(pct_max_used_memory)
             ;;
         'pct_max_physical_memory')
-            local CHECK_OUTPUT=$(pct_max_physical_memory)
+            CHECK_OUTPUT=$(pct_max_physical_memory)
             ;;
         'pct_other_processes_memory')
-            local CHECK_OUTPUT=$(pct_other_processes_memory)
+            CHECK_OUTPUT=$(pct_other_processes_memory)
             ;;
         'pct_temp_sort_table')
-            local CHECK_OUTPUT=$(pct_temp_sort_table)
+            CHECK_OUTPUT=$(pct_temp_sort_table)
             ;;
         'joins_without_indexes_per_day')
-            local CHECK_OUTPUT=$(joins_without_indexes_per_day)
+            CHECK_OUTPUT=$(joins_without_indexes_per_day)
             ;;
         'pct_temp_disk')
-            local CHECK_OUTPUT=$(pct_temp_disk)
+            CHECK_OUTPUT=$(pct_temp_disk)
             ;;
         'thread_cache_hit_rate')
-            local CHECK_OUTPUT=$(thread_cache_hit_rate)
+            CHECK_OUTPUT=$(thread_cache_hit_rate)
             ;;
         'table_cache_hit_rate')
-            local CHECK_OUTPUT=$(table_cache_hit_rate)
+            CHECK_OUTPUT=$(table_cache_hit_rate)
             ;;
         'pct_files_open')
-            local CHECK_OUTPUT=$(pct_files_open)
+            CHECK_OUTPUT=$(pct_files_open)
             ;;
         'pct_table_locks_immediate')
-            local CHECK_OUTPUT=$(pct_table_locks_immediate)
+            CHECK_OUTPUT=$(pct_table_locks_immediate)
             ;;
         'pct_binlog_cache')
-            local CHECK_OUTPUT=$(pct_binlog_cache)
+            CHECK_OUTPUT=$(pct_binlog_cache)
             ;;
         'pct_write_queries')
-            local CHECK_OUTPUT=$(pct_write_queries)
+            CHECK_OUTPUT=$(pct_write_queries)
             ;;
         'performance_metrics')
-            local CHECK_OUTPUT=$(performance_metrics)
+            CHECK_OUTPUT=$(performance_metrics)
             ;;
         'pct_keys_from_mem')
-            local CHECK_OUTPUT=$(pct_keys_from_mem)
+            CHECK_OUTPUT=$(pct_keys_from_mem)
             ;;
         'pct_wkeys_from_mem')
-            local CHECK_OUTPUT=$(pct_aria_keys_from_mem)
+            CHECK_OUTPUT=$(pct_aria_keys_from_mem)
             ;;
         'pct_aria_keys_from_mem')
-            local CHECK_OUTPUT=$(pct_aria_keys_from_mem)
+            CHECK_OUTPUT=$(pct_aria_keys_from_mem)
             ;;
         'pct_read_efficiency')
-            local CHECK_OUTPUT=$(pct_read_efficiency)
+            CHECK_OUTPUT=$(pct_read_efficiency)
             ;;
         'pct_write_efficiency')
-            local CHECK_OUTPUT=$(pct_write_efficiency)
+            CHECK_OUTPUT=$(pct_write_efficiency)
             ;;
         'pct_innodb_buffer_used')
-            local CHECK_OUTPUT=$(pct_innodb_buffer_used)
+            CHECK_OUTPUT=$(pct_innodb_buffer_used)
             ;;
         'innodb_log_waits')
-            local CHECK_OUTPUT=$(innodb_log_waits)
+            CHECK_OUTPUT=$(innodb_log_waits)
             ;;
         'recommendations')
-            local CHECK_OUTPUT=$(recommendations)
+            CHECK_OUTPUT=$(recommendations)
             ;;
         *)
-            local OPT_ERR="-a/--action '${OPT_CHCK}' not recognized"
+            OPT_ERR="-a/--action '${OPT_CHCK}' not recognized"
             ;;
     esac
 
