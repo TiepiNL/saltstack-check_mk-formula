@@ -4,6 +4,7 @@
 {#- Get the `tplroot` from `tpldir` #}
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- set sls_package_install = tplroot ~ '.package.install' %}
+{%- set sls_config_file = tplroot ~ '.config.file' %}
 {%- set sls_mrpe = tplroot ~ '.mrpe' %}
 {%- from tplroot ~ "/map.jinja" import check_mk with context %}
 
@@ -14,6 +15,7 @@ include:
   - packages.pkgs
 {%- endif %}
   - {{ sls_mrpe }}
+  - {{ sls_config_file }}
 
 
 {%- if not check_mk.agent.use_packages_formula %}
@@ -155,3 +157,4 @@ check_mk-mysql-fileinfo-mrpe-mysql-file-blockreplace:
 {%- else %}
       - sls: packages.pkgs
 {%- endif %}
+      - sls: {{ sls_config_file }}

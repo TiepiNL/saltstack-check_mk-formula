@@ -11,9 +11,12 @@ check_mk:
     config:
       # Configuration for the encryption of the agent data.
       encryption: '/etc/check_mk/encryption.cfg'
+      fileinfo: '/etc/check_mk/fileinfo.cfg'
       xinetd: '/etc/xinetd.d/check-mk-agent'
     service:
       name: xinetd
+    # The user running check_mk (required for file permissions).
+    user: root
     plugins_dir: '/usr/lib/check_mk_agent/plugins'
     plugins:
       mysql:

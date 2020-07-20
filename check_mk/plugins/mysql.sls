@@ -17,7 +17,12 @@ include:
   - {{ sls_config_file }}
 
 
-# @TODO: docs
+# Create a mysql.cfg in the agent configuration directory.
+# Using the user data entered in this, the agent can retrieve the desired information
+# from the MySQL instance. This is done in the usual format for MySQL configuration files:
+# [client]
+# user=checkmk
+# password=MyPassword
 check_mk-mysql_cfg-plugins-mysql-file-managed:
   file.managed:
     - name: {{ check_mk.agent.config_dir }}/mysql.cfg
@@ -29,6 +34,9 @@ check_mk-mysql_cfg-plugins-mysql-file-managed:
         sql_monitoring_user: {{ check_mk.agent.plugins.mysql.monitoring_user }}
         sql_monitoring_password: {{ check_mk.agent.plugins.mysql.monitoring_password }}
     - template: jinja
+    # This file contains credentials. Therefore, access is set to 400.
+    - user: {{ check_mk.agent.user }}
+    - mode: 400
     - require:
 {%- if not check_mk.agent.use_packages_formula %}
       - sls: {{ sls_package_install }}
@@ -37,11 +45,12 @@ check_mk-mysql_cfg-plugins-mysql-file-managed:
 {%- endif %}
 
 
-# @TODO: docs
+# 'Installing' the mysql plug-in.
 check_mk-agent_mysql_plugin:
   file.managed:
     - name: {{ check_mk.agent.plugins_dir }}/mk_mysql
     - source: salt://{{ tplroot }}/files/plugins/mk_mysql
+    # The plugin has to be executable.
+    - mode: 700
     - require:
       - sls: {{ sls_config_file }}
-# @TODO: xinetd restart required?
