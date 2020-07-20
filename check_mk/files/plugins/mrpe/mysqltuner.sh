@@ -1206,13 +1206,10 @@ recommendations() {
         if (( $(bc -l <<< "${MAX_PEAK_MEMORY} < 90") )); then
             local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
-		local SHORT_OUTPUT="temp test short"
-        #local OUTPUT="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
-		#local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS} ${ADJUST_VARIABLES_DETAILS}"
-        local LONG_OUTPUT="temp test long"
+        local OUTPUT="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
+		local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS} ${ADJUST_VARIABLES_DETAILS}"
     fi
-	#echo "${RECOMMENDATIONS_COUNT}||${OUTPUT}|${LONG_OUTPUT}"
-    echo "0||${SHORT_OUTPUT}|${LONG_OUTPUT}"
+	echo "${RECOMMENDATIONS_COUNT}||${OUTPUT}|${LONG_OUTPUT}"
 }
 
 # ========================================================================
