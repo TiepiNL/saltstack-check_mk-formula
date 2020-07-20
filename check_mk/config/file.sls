@@ -74,13 +74,25 @@ check_mk-xinetd-config-file-file-managed:
 {%-   endif %}
 
 
+# Create an empty fileinfo config file,
+# if it doesn't exist yet.
+check_mk-fileinfo_cfg-config-file-managed:
+  file.managed:
+    - name: {{ check_mk.agent.config.fileinfo }}
+    - mode: 0600
+    - makedirs: true
+    # Other states blockreplace.append to this file,
+    # so never replace one in place.
+    - replace: false
+
+
 # @TODO: docs
 check_mk-plugins_dir-config-file-file-recurse:
   file.recurse:
     - name: {{ check_mk.agent.plugins_dir }}/
     - source: salt://{{ tplroot }}/files/plugins/defaults/
     - file_mode: 0744
-# @TODO: xinetd restart required?
+
 
 # Cleanup SystemD
 check_mk-systemd_socket_file-config-file-file-absent:
