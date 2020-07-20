@@ -176,7 +176,7 @@ main() {
 
     local VAL="${CHECK_OUTPUT_ARR[0]}"
     local UOM="${CHECK_OUTPUT_ARR[1]}"  # unit of measurement
-    local OUTPUT="${CHECK_OUTPUT_ARR[2]}"
+    local STATUS_OUTPUT="${CHECK_OUTPUT_ARR[2]}"
 	local LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
 
 #
@@ -186,17 +186,17 @@ local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP} ${OPT_CRIT}, warning: ${OP
     # to define the check state.
     case $(compare_result "${VAL}" "${OPT_CRIT}" "${OPT_WARN}" "${OPT_COMP}") in
         $STATE_OK)
-            local OUTPUT="OK - ${OUTPUT}"
+            local STATUS_OUTPUT="OK - ${STATUS_OUTPUT}"
             ;;
         $STATE_CRITICAL)
-            local OUTPUT="CRIT - ${OUTPUT}"
+            local STATUS_OUTPUT="CRIT - ${STATUS_OUTPUT}"
             ;;
         $STATE_WARNING)
-            local OUTPUT="WARN - ${OUTPUT}"
+            local STATUS_OUTPUT="WARN - ${STATUS_OUTPUT}"
             ;;
         *)
             # Set default output state and description.
-            local OUTPUT="UNK Could not evaluate the expression. Output: ${OUTPUT}"
+            local STATUS_OUTPUT="UNK Could not evaluate the expression. Output: ${OUTPUT}"
             ;;
     esac
 
@@ -211,9 +211,9 @@ local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP} ${OPT_CRIT}, warning: ${OP
     local PERFDATA="${OPT_CHCK}=${VAL}${UOM};${OPT_WARN/None/''};${OPT_CRIT/None/''};0;${PERFDATA_MAX:-}"
     # Add multiline output, if any.
     if [ ! -z "${LONG_OUTPUT}" ]; then
-        echo "${OUTPUT}|${PERFDATA}\n${LONG_OUTPUT}"
+        echo "${STATUS_OUTPUT}|${PERFDATA}\n${LONG_OUTPUT}"
     else
-        echo "${OUTPUT}|${PERFDATA}"
+        echo "${STATUS_OUTPUT}|${PERFDATA}"
     fi
 }
 
