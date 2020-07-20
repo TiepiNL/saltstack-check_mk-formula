@@ -212,7 +212,7 @@ local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP}${OPT_CRIT}, warning: ${OPT
     # Add multiline output, if any.
     if [ ! -z "${LONG_OUTPUT}" ]; then
         #echo "${STATUS_OUTPUT}|${PERFDATA}\n${LONG_OUTPUT}"
-        echo "${STATUS_OUTPUT}${LONG_OUTPUT}|${PERFDATA}"'\n'"Test-long"
+        echo "${STATUS_OUTPUT}${LONG_OUTPUT}|${PERFDATA}"'\\n'"Test-long"
     else
         echo "${STATUS_OUTPUT}|${PERFDATA}"
     fi
