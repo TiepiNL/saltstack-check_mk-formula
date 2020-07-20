@@ -179,9 +179,6 @@ main() {
     local STATUS_OUTPUT="${CHECK_OUTPUT_ARR[2]}"
 	local LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
 
-    # We'll print the threshold values in the long (multiline) output.
-    local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP}${OPT_CRIT}, warning: ${OPT_COMP}${OPT_WARN}."
-
     # Compare the check value with warning/critical thresholds
     # to define the check state.
     case $(compare_result "${VAL}" "${OPT_CRIT}" "${OPT_WARN}" "${OPT_COMP}") in
@@ -210,10 +207,13 @@ main() {
     # Set `None` thresholds to null for the perfdata.
     local PERFDATA="${OPT_CHCK}=${VAL}${UOM};${OPT_WARN/None/''};${OPT_CRIT/None/''};0;${PERFDATA_MAX:-}"
 	echo "${STATUS_OUTPUT}|${PERFDATA}"
-    # Add multiline output, if any.
+    # Add specific extended/multiline output, if any.
     if [ ! -z "${LONG_OUTPUT}" ]; then
         echo "${LONG_OUTPUT}"
+		echo ""
     fi
+    # We'll print the threshold values in the long (multiline) output.
+    echo "Thresholds - critical: ${OPT_COMP}${OPT_CRIT}, warning: ${OPT_COMP}${OPT_WARN}."
 }
 
 # ########################################################################
