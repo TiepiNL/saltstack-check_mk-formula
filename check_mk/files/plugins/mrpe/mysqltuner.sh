@@ -26,6 +26,7 @@ STATE_OK=0
 STATE_WARNING=1
 STATE_CRITICAL=2
 STATE_UNKNOWN=3
+readonly STATE_OK; readonly STATE_WARNING; readonly STATE_CRITICAL;readonly STATE_UNKNOWN
 
 JSON_FILE="/var/log/mysqltuner_output.json"
 
@@ -33,29 +34,35 @@ JSON_FILE="/var/log/mysqltuner_output.json"
 # Run the program.
 # ########################################################################
 main() {
-    # Get options
+    # Declare local variables.
+    local OPT_COMP; local OPT_CHCK; local OPT_CRIT; local OPT_WARN
+	local OPT_ERR
+    local CHECK_OUTPUT
+    local VAL; local UOM; local STATUS_OUTPUT; local LONG_OUTPUT
+    local STATE_OUTPUT
+    local PERFDATA_MAX; local PERFDATA
+    # Get options.
     for o; do
         case "${o}" in
-            -a|--action)         shift; local OPT_CHCK="${1}"; shift; ;;
-            -c|--critical)       shift; local OPT_CRIT="${1}"; shift; ;;
-            -C|--compare)        shift; local OPT_COMP="${1}"; shift; ;;
-            -w|--warning)        shift; local OPT_WARN="${1}"; shift; ;;
+            -a|--action)         shift; OPT_CHCK="${1}"; shift; ;;
+            -c|--critical)       shift; OPT_CRIT="${1}"; shift; ;;
+            -C|--compare)        shift; OPT_COMP="${1}"; shift; ;;
+            -w|--warning)        shift; OPT_WARN="${1}"; shift; ;;
             -*)                  echo "Unknown option ${o}."; exit 1; ;;
         esac
     done
-    # Set default option values
-    local OPT_COMP="${OPT_COMP:->=}"
-	local OPT_CHCK="${OPT_CHCK:-recommendations}"
-	local OPT_CRIT="${OPT_CRIT:-None}"
-	local OPT_WARN="${OPT_WARN:-None}"
+    # Set default option values.
+    OPT_COMP="${OPT_COMP:->=}"
+    OPT_CHCK="${OPT_CHCK:-recommendations}"
+    OPT_CRIT="${OPT_CRIT:-None}"
+    OPT_WARN="${OPT_WARN:-None}"
 
     # Validate the options.
-    local OPT_ERR=""
     case "${OPT_COMP}" in
         '=='|'<'|'<='|'!='|'>='|'>')
             ;;
         *)
-            local OPT_ERR="-C/--compare must be one of: '==', '!=', '>=', '>', '<', '<=' (provided input: '${OPT_COMP}')"
+            OPT_ERR="-C/--compare must be one of: '==', '!=', '>=', '>', '<', '<=' (provided input: '${OPT_COMP}')"
             ;;
     esac
 
@@ -64,7 +71,7 @@ main() {
             # `None` is the only excepted non-numeric value.
             ;;
         '.'|*.*.*|''|*[!0-9.]*)
-            local OPT_ERR="-c/--critical must be numeric (provided input: '${OPT_CRIT}')"
+            OPT_ERR="-c/--critical must be numeric (provided input: '${OPT_CRIT}')"
             ;;
         *)
             ;;
@@ -75,13 +82,12 @@ main() {
             # `None` is the only excepted non-numeric value.
             ;;
         '.'|*.*.*|''|*[!0-9.]*)
-            local OPT_ERR="-w/--warning must be numeric (provided input: '${OPT_WARN}')"
+            OPT_ERR="-w/--warning must be numeric (provided input: '${OPT_WARN}')"
             ;;
         *)
             ;;
     esac
 
-    local CHECK_OUTPUT	
     case "${OPT_CHCK}" in
         'pct_slow_queries')
             CHECK_OUTPUT=$(pct_slow_queries)
@@ -174,26 +180,26 @@ main() {
 	read -r -a CHECK_OUTPUT_ARR <<< "${CHECK_OUTPUT}"
     IFS=$IFS_OLD
 
-    local VAL="${CHECK_OUTPUT_ARR[0]}"
-    local UOM="${CHECK_OUTPUT_ARR[1]}"  # unit of measurement
-    local STATUS_OUTPUT="${CHECK_OUTPUT_ARR[2]}"
-	local LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
+    VAL="${CHECK_OUTPUT_ARR[0]}"
+    UOM="${CHECK_OUTPUT_ARR[1]}"  # unit of measurement
+    STATUS_OUTPUT="${CHECK_OUTPUT_ARR[2]}"
+	LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
 
     # Compare the check value with warning/critical thresholds
     # to define the check state.
     case $(compare_result "${VAL}" "${OPT_CRIT}" "${OPT_WARN}" "${OPT_COMP}") in
-        $STATE_OK)
-            local STATUS_OUTPUT="OK - ${STATUS_OUTPUT}"
+        "${STATE_OK}")
+            STATE_OUTPUT="OK - ${STATUS_OUTPUT}"
             ;;
-        $STATE_CRITICAL)
-            local STATUS_OUTPUT="CRIT - ${STATUS_OUTPUT}"
+        "${STATE_CRITICAL}")
+            STATE_OUTPUT="CRIT - ${STATUS_OUTPUT}"
             ;;
-        $STATE_WARNING)
-            local STATUS_OUTPUT="WARN - ${STATUS_OUTPUT}"
+        "${STATE_WARNING}")
+            STATE_OUTPUT="WARN - ${STATUS_OUTPUT}"
             ;;
         *)
             # Set default output state and description.
-            local STATUS_OUTPUT="UNK Could not evaluate the expression. Output: ${OUTPUT}"
+            STATE_OUTPUT="UNK Could not evaluate the expression. Output: ${OUTPUT}"
             ;;
     esac
 
@@ -201,14 +207,14 @@ main() {
     # Expected perfdata format: 'label'=value[UOM];[warn];[crit];[min];[max]
     # https://nagios-plugins.org/doc/guidelines.html#AEN200
     if [ "${UOM}" = "%" ]; then
-		local PERFDATA_MAX=100
+		PERFDATA_MAX=100
     fi
 
     # Set `None` thresholds to null for the perfdata.
-    local PERFDATA="${OPT_CHCK}=${VAL}${UOM};${OPT_WARN/None/''};${OPT_CRIT/None/''};0;${PERFDATA_MAX:-}"
-	echo "${STATUS_OUTPUT}|${PERFDATA}"
+	PERFDATA="${OPT_CHCK}=${VAL}${UOM};${OPT_WARN/None/''};${OPT_CRIT/None/''};0;${PERFDATA_MAX}"
+	echo "${STATE_OUTPUT}|${PERFDATA}"
     # Add specific extended/multiline output, if any.
-    if [ ! -z "${LONG_OUTPUT}" ]; then
+    if [ -n "${LONG_OUTPUT}" ]; then
         echo "${LONG_OUTPUT}"
 		echo ""
     fi
@@ -337,12 +343,18 @@ hr_time() {
         *)
             ;;
     esac
+
+    local SECS
+    local DAYS
+    local HOURS
+    local MINUTES
+    local SECONDS
     # Remove and save any fractional component
-    local SECS="${1%.*}"
-    local DAYS="$(bc -l <<< "scale=0; ${SECS}/86400")"
-    local HOURS="$(bc -l <<< "scale=0; (${SECS}-(${DAYS}*86400))/3600")"
-    local MINUTES="$(bc -l <<< "scale=0; (${SECS}-(${DAYS}*86400)-(${HOURS}*3600))/60")"
-    local SECONDS="$(bc -l <<< "scale=0; (${SECS}-(${DAYS}*86400)-(${HOURS}*3600)-(${MINUTES}*60))")"
+    SECS="${1%.*}"
+    DAYS="$(bc -l <<< "scale=0; ${SECS}/86400")"
+    HOURS="$(bc -l <<< "scale=0; (${SECS}-(${DAYS}*86400))/3600")"
+    MINUTES="$(bc -l <<< "scale=0; (${SECS}-(${DAYS}*86400)-(${HOURS}*3600))/60")"
+    SECONDS="$(bc -l <<< "scale=0; (${SECS}-(${DAYS}*86400)-(${HOURS}*3600)-(${MINUTES}*60))")"
     # @TODO: There must be a better way to do the calculations above.
 	
     if (( $(bc -l <<< "${DAYS} > 0") )); then
@@ -365,27 +377,30 @@ hr_time() {
 # Function to use jq to parse the json output.
 # ########################################################################
 process_json() {
-    # Get options
+    # Declare local variables.
+    local OPT_FILE; local OPT_KEY; local OPT_NULL
+    local OPT_ERR
+    local VAL
+    # Get options.
     for o; do
         case "${o}" in
-            -f|--file)       shift; local OPT_FILE="${1}"; shift; ;;
-            -k|--key)        shift; local OPT_KEY="${1}"; shift; ;;
-            -n|--null)       shift; local OPT_NULL="${1}"; shift; ;;
+            -f|--file)       shift; OPT_FILE="${1}"; shift; ;;
+            -k|--key)        shift; OPT_KEY="${1}"; shift; ;;
+            -n|--null)       shift; OPT_NULL="${1}"; shift; ;;
             -*)              echo "Unknown option ${o}."; exit 1; ;;
         esac
     done
     # If variable not set or null, use default.
-    local OPT_FILE="${OPT_FILE:-${JSON_FILE}}"
+    OPT_FILE="${OPT_FILE:-${JSON_FILE}}"
 
     # Validate the options.
-    local OPT_ERR=""
     if [ -z "${OPT_KEY}" ]; then
-        local OPT_ERR="you must specify -k or --key"
+        OPT_ERR="you must specify -k or --key"
     else
         case "${OPT_KEY#.}" in
             ''|*..*|*.|*\"\"*)
                 # Some general error checking
-                local OPT_ERR="-k/--key must be in [parent.]child_key format"
+                OPT_ERR="-k/--key must be in [parent.]child_key format"
                 ;;
             \"[!.]*[!.]" "[!.]*[!.]\"|*.\"[!.]*[!.]" "[!.]*[!.]\"|\"[!.]*[!.]" "[!.]*[!.]\".*|*.\"[!.]*[!.]" "[!.]*[!.]\".*)
                 # Spaced, but OK: 
@@ -396,7 +411,7 @@ process_json() {
                 ;;
             *" "*)
                 # Spaced, not OK
-                local OPT_ERR="1 -k/--keys with spaces have to be enclosed in double quotes, e.g. 'parent.\"child with spaces\"' (input: ${OPT_KEY#.})"
+                OPT_ERR="1 -k/--keys with spaces have to be enclosed in double quotes, e.g. 'parent.\"child with spaces\"' (input: ${OPT_KEY#.})"
                 ;;
             *)
                 # No spaces
@@ -410,17 +425,17 @@ process_json() {
 	    LOAD_JSON_FILE=false
     fi
     # Retrieve the json key by using jq.
-    local val=$(echo "${JSON}" | jq ". | .${OPT_KEY#.}")
-    # If the key doesn't exist, val will be "null" (string, not NULL).
-    if [ "$val" = "null" ] && [ "${OPT_NULL}" ]; then
+    VAL=$(echo "${JSON}" | jq ". | .${OPT_KEY#.}")
+    # If the key doesn't exist, VAL will be "null" (string, not NULL).
+    if [ "${VAL}" = "null" ] && [ "${OPT_NULL}" ]; then
         echo "${OPT_NULL}"
     else
         # Remove the suffix ".
-        local val="${val%\"}"
+        VAL="${VAL%\"}"
         # Remove the prefix ".
-        local val="${val#\"}"
+        VAL="${VAL#\"}"
         # Return the stripped value.
-        echo "${val}"
+        echo "${VAL}"
     fi
 
     if [ "${OPT_ERR}" ]; then
@@ -434,25 +449,25 @@ process_json() {
 # `division by zero` protection.
 # ########################################################################
 pct() {
-    # Get options
+    # Declare local variables.
+    local OPT_ITEM; local OPT_TOTAL
+    local OPT_ERR
+    # Get options.
     for o; do
         case "${o}" in
-            -i|--item)          shift; local OPT_ITEM="${1}"; shift; ;;
-            -t|--total)         shift; local OPT_TOTAL="${1}"; shift; ;;
-            -*|--*)             echo "Unknown option ${o}."; exit 1; ;;
+            -i|--item)          shift; OPT_ITEM="${1}"; shift; ;;
+            -t|--total)         shift; OPT_TOTAL="${1}"; shift; ;;
+            -*)                 echo "Unknown option ${o}."; exit 1; ;;
         esac
     done
-    # If variable not set or null, use default.
-    local OPT_ZERO="${OPT_ZERO:-0}"
 
     # Validate the options.
-    local OPT_ERR=""
     if [ -z "${OPT_ITEM}${OPT_TOTAL}" ]; then
-        local OPT_ERR="you must specify both -i and -t"
-    elif [ "${OPT_ITEM}" -a -z "${OPT_TOTAL}" ]; then
-        local OPT_ERR="you specified -i but not -t"
-    elif [ "${OPT_TOTAL}" -a -z "${OPT_ITEM}" ]; then
-        local OPT_ERR="you specified -t but not -i"
+        OPT_ERR="you must specify both -i and -t"
+    elif [ "${OPT_ITEM}" ] && [ -z "${OPT_TOTAL}" ]; then
+        OPT_ERR="you specified -i but not -t"
+    elif [ "${OPT_TOTAL}" ] && [ -z "${OPT_ITEM}" ]; then
+        OPT_ERR="you specified -t but not -i"
     elif [ "${OPT_ITEM}" ]; then
         # Reject empty strings and strings containing non-digits
         # (single dot excluded), accepting everything else.
@@ -460,7 +475,7 @@ pct() {
         # (if any) before testing.
         case "${OPT_ITEM}" in
             '.'|*.*.*|''|*[!0-9.]*)
-                local OPT_ERR="-i/--item must be numeric and >= 0 (input: ${OPT_ITEM})"
+                OPT_ERR="-i/--item must be numeric and >= 0 (input: ${OPT_ITEM})"
                 ;;
             *)
                 ;;
@@ -468,7 +483,7 @@ pct() {
     fi
     case "${OPT_TOTAL}" in
         '.'|*.*.*|''|*[!0-9.]*)
-            local OPT_ERR="-t/--total must be numeric and >= 0 (input: ${OPT_TOTAL})"
+            OPT_ERR="-t/--total must be numeric and >= 0 (input: ${OPT_TOTAL})"
             ;;
         *)
             ;;
@@ -483,7 +498,7 @@ pct() {
 	    # Divide-by-zero protection; make the result simply 0.
         echo 0
     else
-        awk -v item=${OPT_ITEM} -v total=${OPT_TOTAL} 'BEGIN { printf "%.2f\n", 100 * item / total }'
+        awk -v item="${OPT_ITEM}" -v total="${OPT_TOTAL}" 'BEGIN { printf "%.2f\n", 100 * item / total }'
     fi
 }
 
@@ -498,23 +513,28 @@ pct() {
 # - https://stackoverflow.com/a/32931403
 # ########################################################################
 get_top_memory_procs() {
-    # Get options
+    # Declare local variables.
+    local OPT_HEAD
+    local OPT_ERR
+    local OUTPUT
+    local PS_COMMAND
+    # Get options.
     for o; do
         case "${o}" in
-            -h|--head)          shift; local OPT_HEAD="${1}"; shift; ;;
-            -*|--*)             echo "Unknown option ${o}."; exit 1; ;;
+            -h|--head)          shift; OPT_HEAD="${1}"; shift; ;;
+            -*)                 echo "Unknown option ${o}."; exit 1; ;;
         esac
     done
     # If head variable not set or null, use a default of 3.
-    local OPT_HEAD="${OPT_HEAD:-3}"
+    OPT_HEAD="${OPT_HEAD:-3}"
 
     # Validate the options.
-    local OPT_ERR=""
+    OPT_ERR=""
     # Reject empty strings and strings containing non-digits,
     # accepting everything else.
     case "${OPT_HEAD}" in
         ''|*[!0-9]*)
-            local OPT_ERR="-h/--head must be numeric"
+            OPT_ERR="-h/--head must be numeric"
             ;;
         *)
             ;;
@@ -525,10 +545,10 @@ get_top_memory_procs() {
         exit 1
     fi
 
-    local OUTPUT="Top ${OPT_HEAD} memory processes: "
+    OUTPUT="Top ${OPT_HEAD} memory processes: "
 
     #  Use awk to sum up the total memory used by processes of the same name.
-    local PS_COMMAND="ps -e orss,comm | awk '{print $1 \" \" $2 }' | awk '{tot[$2]+=$1;count[$2]++} END {for (i in tot) {print tot[i],i,count[i]}}' | sort -nr | head -${OPT_HEAD}"
+    PS_COMMAND="ps -e orss,comm | awk '{print $1 \" \" $2 }' | awk '{tot[$2]+=$1;count[$2]++} END {for (i in tot) {print tot[i],i,count[i]}}' | sort -nr | head -${OPT_HEAD}"
 
     # @TODO: the above command works on cli, but no clue how to make the pipes work in script.
 }
@@ -540,15 +560,19 @@ get_top_memory_procs() {
 # Slow queries (pct_slow_queries)
 # ########################################################################
 pct_slow_queries() {
-    # Vars
-    local STATUS_SLOW_QUERIES=$(process_json -k "Status.Slow_queries")
-    local STATUS_QUESTIONS=$(process_json -k "Status.Questions")
-	local PCT_SLOW_QUERIES=$(pct -i ${STATUS_SLOW_QUERIES} -t ${STATUS_QUESTIONS})
+    # Declare local variables.
+    local STATUS_SLOW_QUERIES; local STATUS_QUESTIONS
+    local PCT_SLOW_QUERIES
+    local OUTPUT
+    # Set variables with JSON data.
+    STATUS_SLOW_QUERIES=$(process_json -k "Status.Slow_queries")
+    STATUS_QUESTIONS=$(process_json -k "Status.Questions")
     # Logic & calculations
+	PCT_SLOW_QUERIES=$(pct -i ${STATUS_SLOW_QUERIES} -t ${STATUS_QUESTIONS})
     if (( $(bc -l <<< "${PCT_SLOW_QUERIES} > 0") )); then
-        local OUTPUT="Slow queries: ${PCT_SLOW_QUERIES}% ($(hr_num ${STATUS_SLOW_QUERIES}) slow / $(hr_num ${STATUS_QUESTIONS}) queries)"
+        OUTPUT="Slow queries: ${PCT_SLOW_QUERIES}% ($(hr_num ${STATUS_SLOW_QUERIES}) slow / $(hr_num ${STATUS_QUESTIONS}) queries)"
     else
-        local OUTPUT="No slow queries detected - all good!"
+        OUTPUT="No slow queries detected - all good!"
     fi
 	echo "${PCT_SLOW_QUERIES}|%|${OUTPUT}"
 }
