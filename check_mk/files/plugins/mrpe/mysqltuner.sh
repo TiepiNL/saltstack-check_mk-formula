@@ -211,7 +211,8 @@ local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP}${OPT_CRIT}, warning: ${OPT
     local PERFDATA="${OPT_CHCK}=${VAL}${UOM};${OPT_WARN/None/''};${OPT_CRIT/None/''};0;${PERFDATA_MAX:-}"
     # Add multiline output, if any.
     if [ ! -z "${LONG_OUTPUT}" ]; then
-        echo "${STATUS_OUTPUT}|${PERFDATA}\n${LONG_OUTPUT}"
+        #echo "${STATUS_OUTPUT}|${PERFDATA}\n${LONG_OUTPUT}"
+        echo "${STATUS_OUTPUT}${LONG_OUTPUT}|${PERFDATA}"
     else
         echo "${STATUS_OUTPUT}|${PERFDATA}"
     fi
@@ -1196,8 +1197,7 @@ recommendations() {
 
     # else: No recommended variables to adjust - all good!
     fi
-	
-	local 
+ 
     if (( ${#RECOMMENDATIONS} == 0 )) && (( ${#ADJUST_VARIABLES} == 0 )); then
         local OUTPUT="No additional performance recommendations are available - well done!"
     else
@@ -1208,11 +1208,13 @@ recommendations() {
         if (( $(bc -l <<< "${MAX_PEAK_MEMORY} < 90") )); then
             local ADJUST_VARIABLES="${ADJUST_VARIABLES} *** MySQL's maximum potential memory usage is dangerously high (${MAX_PEAK_MEMORY}%)! add RAM before increasing MySQL buffer variables ***."
         fi
-		local OUTPUT="temp test"
+		local SHORT_OUTPUT="temp test short"
         #local OUTPUT="${RECOMMENDATIONS_STATUS} ${ADJUST_VARIABLES_STATUS}"
-		local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS} ${ADJUST_VARIABLES_DETAILS}"
+		#local LONG_OUTPUT="${RECOMMENDATIONS_DETAILS} ${ADJUST_VARIABLES_DETAILS}"
+        local LONG_OUTPUT="temp test long"
     fi
-	echo "${RECOMMENDATIONS_COUNT}||${OUTPUT}|${LONG_OUTPUT}"
+	#echo "${RECOMMENDATIONS_COUNT}||${OUTPUT}|${LONG_OUTPUT}"
+    echo "0||${SHORT_OUTPUT}|${LONG_OUTPUT}"
 }
 
 # ========================================================================
