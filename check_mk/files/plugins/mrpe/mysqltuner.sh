@@ -179,6 +179,9 @@ main() {
     local OUTPUT="${CHECK_OUTPUT_ARR[2]}"
 	local LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
 
+#
+local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP} ${OPT_CRIT}, warning: ${OPT_COMP} ${OPT_WARN}."
+
     # Compare the check value with warning/critical thresholds
     # to define the check state.
     case $(compare_result "${VAL}" "${OPT_CRIT}" "${OPT_WARN}" "${OPT_COMP}") in
