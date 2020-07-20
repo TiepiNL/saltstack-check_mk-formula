@@ -179,8 +179,8 @@ main() {
     local STATUS_OUTPUT="${CHECK_OUTPUT_ARR[2]}"
 	local LONG_OUTPUT="${CHECK_OUTPUT_ARR[3]}"
 
-#
-local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP}${OPT_CRIT}, warning: ${OPT_COMP}${OPT_WARN}."
+    # We'll print the threshold values in the long (multiline) output.
+    local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP}${OPT_CRIT}, warning: ${OPT_COMP}${OPT_WARN}."
 
     # Compare the check value with warning/critical thresholds
     # to define the check state.
@@ -212,7 +212,7 @@ local LONG_OUTPUT="Thresholds - critical: ${OPT_COMP}${OPT_CRIT}, warning: ${OPT
     # Add multiline output, if any.
     if [ ! -z "${LONG_OUTPUT}" ]; then
         #echo "${STATUS_OUTPUT}|${PERFDATA}\n${LONG_OUTPUT}"
-        echo "${STATUS_OUTPUT}${LONG_OUTPUT}|${PERFDATA}"'\\n'"Test-long"
+        echo "${STATUS_OUTPUT}|${PERFDATA}"'\n'"${LONG_OUTPUT}"
     else
         echo "${STATUS_OUTPUT}|${PERFDATA}"
     fi
