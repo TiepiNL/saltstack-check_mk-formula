@@ -30,10 +30,10 @@ check_mk-mysql_cfg-plugins-mysql-file-managed:
                               lookup='check_mk-mysql_cfg-plugins-mysql-file-managed'
                  )
               }}
+    - template: jinja
     - defaults:
         sql_monitoring_user: {{ check_mk.agent.plugins.mysql.monitoring_user }}
         sql_monitoring_password: {{ check_mk.agent.plugins.mysql.monitoring_password }}
-    - template: jinja
     # This file contains credentials. Therefore, access is set to 400.
     - user: {{ check_mk.agent.user }}
     - mode: 400
@@ -46,7 +46,7 @@ check_mk-mysql_cfg-plugins-mysql-file-managed:
 
 
 # 'Installing' the mysql plug-in.
-check_mk-agent_mysql_plugin:
+check_mk-mk_mysql-plugins-mysql:
   file.managed:
     - name: {{ check_mk.agent.plugins_dir }}/mk_mysql
     - source: salt://{{ tplroot }}/files/plugins/mk_mysql

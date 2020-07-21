@@ -19,6 +19,20 @@ check_mk:
     user: root
     plugins_dir: '/usr/lib/check_mk_agent/plugins'
     plugins:
+      defaults:
+        mk_apt_enabled: true
+        mk_inventory_enabled: true
+        mk_iptables_enabled: true
+        mk_logins_enabled: true
+        mk_sshd_config_enabled: true
+        apt:
+          # Can either be 'upgrade' or 'dist-upgrade'.
+          upgrade: dist-upgrade
+          # Execute apt-get update in advance.
+          do_update: no
+        inventory:
+          # Inventory interval in seconds.
+          interval: 14400
       mysql:
         monitoring_user: root
         monitoring_password: ''

@@ -22,17 +22,13 @@ include:
   - packages.pkgs
 {%- endif %}
 
-# @TODO: docs
-check_mk-config_dir-config-file-file-directory:
-  file.directory:
-    - name: {{ check_mk.agent.config_dir }}/
-
 
 # @TODO: docs
 {%- if check_mk.agent.encrypted %}
 check_mk-encryption_cfg-config-file-file-managed:
   file.managed:
     - name: {{ check_mk.agent.config.encryption }}
+    - makedirs: true
     - template: jinja
     - contents: |
         ENCRYPTED=yes
@@ -60,6 +56,7 @@ check_mk-xinetd-config-file-file-managed:
                               lookup='check_mk-xinetd-config-file-file-managed'
                  )
               }}
+    - makedirs: true
     - template: jinja
     - defaults:
         only_from_server_ips: {{ check_mk.agent.only_from_server_ips }}
@@ -80,19 +77,11 @@ check_mk-xinetd-config-file-file-managed:
 check_mk-fileinfo_cfg-config-file-managed:
   file.managed:
     - name: {{ check_mk.agent.config.fileinfo }}
-    - mode: 0600
     - makedirs: true
+    - mode: 0600
     # Other states blockreplace.append to this file,
     # so never replace one in place.
     - replace: false
-
-
-# @TODO: docs
-check_mk-plugins_dir-config-file-file-recurse:
-  file.recurse:
-    - name: {{ check_mk.agent.plugins_dir }}/
-    - source: salt://{{ tplroot }}/files/plugins/defaults/
-    - file_mode: 0744
 
 
 # Cleanup SystemD
