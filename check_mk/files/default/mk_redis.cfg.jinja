@@ -5,7 +5,7 @@
 {%- set instance = "redis_" ~ plugin_redis.get('port', '6379') %}
 
 # List of instances, defines service description for resulting checks
-REDIS_INSTANCES=(redis_{{  }})
+REDIS_INSTANCES=({{ instance }})
 
 # Host, Port and optional password per instance
 REDIS_HOST_{{ instance }}="{{ plugin_redis.get('server', '127.0.0.1') }}"
