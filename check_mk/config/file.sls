@@ -34,6 +34,7 @@ check_mk-encryption_cfg-config-file-file-managed:
         ENCRYPTED=yes
         PASSPHRASE={{ check_mk.agent.encryption_passphrase }}
     # Secure the file against reading by other users.
+    - user: {{ check_mk.agent.user }}
     - mode: 400
     - require:
 {%- if not check_mk.agent.use_packages_formula %}
@@ -78,7 +79,9 @@ check_mk-fileinfo_cfg-config-file-managed:
   file.managed:
     - name: {{ check_mk.agent.config.fileinfo }}
     - makedirs: true
-    - mode: 0600
+    # Secure the file against writing.
+    - user: {{ check_mk.agent.user }}
+    - mode: 444
     # Other states blockreplace.append to this file,
     # so never replace one in place.
     - replace: false

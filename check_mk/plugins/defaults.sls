@@ -34,7 +34,8 @@ check_mk-mk_inventory-plugins-defaults:
     - source: salt://{{ tplroot }}/files/plugins/defaults/mk_inventory
     - makedirs: true
     # The plugin has to be executable.
-    - mode: 700
+    - user: {{ check_mk.agent.user }}
+    - mode: 544
     - require:
       - check_mk-mk_inventory_cfg-plugins-defaults-file-managed
 
@@ -47,7 +48,9 @@ check_mk-mk_inventory_cfg-plugins-defaults-file-managed:
     - template: jinja
     - contents: |
         INVENTORY_INTERVAL={{ check_mk.agent.plugins.defaults.inventory.interval }}
-    - mode: 600
+    # Secure the file against writing.
+    - user: {{ check_mk.agent.user }}
+    - mode: 444
 
 {%- endif %}
 
@@ -61,7 +64,8 @@ check_mk-mk_iptables-plugins-defaults:
     - source: salt://{{ tplroot }}/files/plugins/defaults/mk_iptables
     - makedirs: true
     # The plugin has to be executable.
-    - mode: 700
+    - user: {{ check_mk.agent.user }}
+    - mode: 544
 
 {%- endif %}
 
@@ -75,7 +79,8 @@ check_mk-mk_logins-plugins-defaults:
     - source: salt://{{ tplroot }}/files/plugins/defaults/mk_logins
     - makedirs: true
     # The plugin has to be executable.
-    - mode: 700
+    - user: {{ check_mk.agent.user }}
+    - mode: 544
 
 {%- endif %}
 
@@ -89,6 +94,7 @@ check_mk-mk_sshd_config-plugins-defaults:
     - source: salt://{{ tplroot }}/files/plugins/defaults/mk_sshd_config
     - makedirs: true
     # The plugin has to be executable.
-    - mode: 700
+    - user: {{ check_mk.agent.user }}
+    - mode: 544
 
 {%- endif %}

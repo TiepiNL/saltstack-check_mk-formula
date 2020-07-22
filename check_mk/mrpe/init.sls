@@ -17,7 +17,10 @@ include:
 check_mk-mrpe_cfg-mrpe-file-managed:
   file.managed:
     - name: {{ check_mk.agent.mrpe.config }}
-    - mode: 0600
+    # Secure the file against reading by other users;
+    # it can contain passwords.
+    - user: {{ check_mk.agent.user }}
+    - mode: 400
     - makedirs: true
     - order: first
     # Other states blockreplace.append to this file,
