@@ -13,3 +13,4 @@ include:
   # Role-specific:
 # @TODO: retrieve roles from pillar / grains
   - .mysql
+  - .redis
