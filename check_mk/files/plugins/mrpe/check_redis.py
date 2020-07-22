@@ -106,7 +106,7 @@ for option in check_fields:
 
     try:
         value = (args.__dict__[option])
-        if value < 0:
+        if int(value) < 0:
             raise ValueError
         else:
             globals()[option] = int(value)
