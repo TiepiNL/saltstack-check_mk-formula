@@ -17,6 +17,7 @@ check_mk:
       name: xinetd
     # The user running check_mk (required for file permissions).
     user: root
+    job_dir: '/var/lib/check_mk_agent/job'
     plugins_dir: '/usr/lib/check_mk_agent/plugins'
     plugins:
       defaults:
