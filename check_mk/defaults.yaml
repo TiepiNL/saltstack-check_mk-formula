@@ -47,6 +47,9 @@ check_mk:
       needrestart:
         pkg:
           name: needrestart
+      redis:
+        pip:
+          python_redis: redis
       mysql:
         mysqltuner:
           pkg:
@@ -55,6 +58,7 @@ check_mk:
               - libjson-perl  # Module for manipulating JSON-formatted data
               - bc            # Command line calculator for arithmetic operations
               - jq            # lightweight and flexible command-line JSON processor
+              - time          # Time program for measuring CPU resource usage
           # Whether the cron-formula is used for the recurring execution
           # of mysqltuner (`true`). If `false`, the execution will be
           # handled by a cmd.run state.

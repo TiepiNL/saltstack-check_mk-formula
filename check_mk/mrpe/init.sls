@@ -9,6 +9,7 @@
 include:
   - .needrestart
   - .mysql
+  - .redis
 
 
 # Create an empty mrpe config file,

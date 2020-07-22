@@ -2,10 +2,17 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+{#- Get the `tplroot` from `tpldir` #}
+{%- set tplroot = tpldir.split('/')[0] %}
+{%- from tplroot ~ "/map.jinja" import check_mk with context %}
+
+{%- set plugin_redis = check_mk.agent.plugins.redis %}
+{%- set instance = "redis_" ~ plugin_redis.get('port', '6379') %}
+
 # List of instances, defines service description for resulting checks
-# REDIS_INSTANCES=(My_First_Redis)
+REDIS_INSTANCES=(redis_{{  }})
 
 # Host, Port and optional password per instance
-# REDIS_HOST_My_First_Redis="127.0.0.1"
-# REDIS_PORT_My_First_Redis="6380"
-# REDIS_PASSWORD_My_First_Redis='MYPASSWORD'
+REDIS_HOST_{{ instance }}="{{ plugin_redis.get('server', '127.0.0.1') }}"
+REDIS_PORT_{{ instance }}="{{ plugin_redis.get('port', '6379') }}"
+REDIS_PASSWORD_{{ instance }}='{{ plugin_redis }}'

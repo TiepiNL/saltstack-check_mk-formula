@@ -13,9 +13,7 @@ include:
 {%- endif %}
 
 
-# @TODO: docs
-{%- if not check_mk.agent.use_packages_formula %}
-
+# Install the check_mk agent from source (not available as package).
 check_mk-check-mk-agent-install-pkg-installed:
   pkg.installed:
     - name: {{ check_mk.agent.pkg.name }}
@@ -23,9 +21,7 @@ check_mk-check-mk-agent-install-pkg-installed:
     - refresh: False
     - sources: 
       - check-mk-agent: {{ check_mk.agent.pkg.source }}
-{%-   if check_mk.agent.use_xinetd_formula %}
+{%- if check_mk.agent.use_xinetd_formula %}
     - watch_in:
       - service: xinetd
-{%-   endif %}
-
 {%- endif %}

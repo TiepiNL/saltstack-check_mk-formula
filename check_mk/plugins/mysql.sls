@@ -26,14 +26,11 @@ include:
 check_mk-mysql_cfg-plugins-mysql-file-managed:
   file.managed:
     - name: {{ check_mk.agent.config_dir }}/mysql.cfg
-    - source: {{ files_switch(['mysql.cfg.jinja'],
-                              lookup='check_mk-mysql_cfg-plugins-mysql-file-managed'
-                 )
-              }}
     - template: jinja
-    - defaults:
-        sql_monitoring_user: {{ check_mk.agent.plugins.mysql.monitoring_user }}
-        sql_monitoring_password: {{ check_mk.agent.plugins.mysql.monitoring_password }}
+    - contents: |
+        [client]
+        user={{ check_mk.agent.plugins.mysql.monitoring_user }}
+        password={{ check_mk.agent.plugins.mysql.monitoring_password }}
     # This file contains credentials. Therefore, access is set to 400.
     - user: {{ check_mk.agent.user }}
     - mode: 400
@@ -46,11 +43,12 @@ check_mk-mysql_cfg-plugins-mysql-file-managed:
 
 
 # 'Installing' the mysql plug-in.
-check_mk-mk_mysql-plugins-mysql:
+check_mk-mk_mysql-plugins-mysql-file-managed:
   file.managed:
     - name: {{ check_mk.agent.plugins_dir }}/mk_mysql
     - source: salt://{{ tplroot }}/files/plugins/mk_mysql
     # The plugin has to be executable.
     - mode: 700
     - require:
+      - file: check_mk-mysql_cfg-plugins-mysql-file-managed
       - sls: {{ sls_config_file }}
