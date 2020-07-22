@@ -4,7 +4,7 @@
 {#- Get the `tplroot` from `tpldir` #}
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- set sls_config_file = tplroot ~ '.config.file' %}
-{%- from tplroot ~ "/map.jinja" import redis with context %}
+{%- from tplroot ~ "/map.jinja" import check_mk with context %}
 {%- from tplroot ~ "/libtofs.jinja" import files_switch with context %}
 
 include:
