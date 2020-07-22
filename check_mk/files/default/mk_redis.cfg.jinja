@@ -2,7 +2,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-{%- set instance = plugin_redis.get('server', '127.0.0.1') ~ "_" ~ plugin_redis.get('port', '6379') %}
+{%- set instance = plugin_redis.get('server', 'localhost') ~ "_" ~ plugin_redis.get('port', '6379') %}
 
 # List of instances, defines service description for resulting checks
 REDIS_INSTANCES=({{ instance }})
