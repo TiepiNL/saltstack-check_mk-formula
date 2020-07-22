@@ -15,4 +15,4 @@ REDIS_INSTANCES=(redis_{{  }})
 # Host, Port and optional password per instance
 REDIS_HOST_{{ instance }}="{{ plugin_redis.get('server', '127.0.0.1') }}"
 REDIS_PORT_{{ instance }}="{{ plugin_redis.get('port', '6379') }}"
-REDIS_PASSWORD_{{ instance }}='{{ plugin_redis }}'
+REDIS_PASSWORD_{{ instance }}='{{ plugin_redis.get('pass', 'no-access-to-redis-credentials') }}'
