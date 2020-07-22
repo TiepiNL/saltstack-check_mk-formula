@@ -136,7 +136,7 @@ try:
             port=int(args.port),
             socket_timeout=args.timeout
         )
-        redis_info = redis_connection.info()
+    redis_info = redis_connection.info()
 except (
         socket.error,
         redis.exceptions.ConnectionError,
