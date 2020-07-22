@@ -22,8 +22,7 @@ check_mk-mk_redis_cfg-plugins-redis-file-managed:
               }}
     - template: jinja
     - defaults:
-# if use_redis?
-        key: {{ check_mk.agent.value }}
+        plugin_redis: {{ check_mk.agent.plugins.redis | json }}
     # This file contains credentials. Therefore, access is set to 400.
     - user: {{ check_mk.agent.user }}
     - mode: 400

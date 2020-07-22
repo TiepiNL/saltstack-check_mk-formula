@@ -2,11 +2,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-{#- Get the `tplroot` from `tpldir` #}
-{%- set tplroot = tpldir.split('/')[0] %}
-{%- from tplroot ~ "/map.jinja" import check_mk with context %}
-
-{%- set plugin_redis = check_mk.agent.plugins.redis %}
 {%- set instance = "redis_" ~ plugin_redis.get('port', '6379') %}
 
 # List of instances, defines service description for resulting checks
