@@ -47,7 +47,7 @@ check_mk-redis-monitoring-mrpe-redis-file-blockreplace:
     - marker_start: '# start-redis-monitoring-include'
     - marker_end: '# end-redis-monitoring-include'
     - content: |
-        Redis {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w " ~ mrpe_check_details.warn ~ " -c " ~ mrpe_check_details.crit ~ " -r " ~ rpe_check_details.rss_warn ~ " -R " ~ mrpe_check_details.rss_crit ~ " -s " ~ mrpe_check_details.get('server', 'localhost') ~ " -p " ~ mrpe_check_details.get('port', '6379') ~ " -P " ~ check_mk.agent.plugins.redis.get('pass', 'no-access-to-redis-credentials') ~ " -t " ~ mrpe_check_details.get('timeout', '10') }}
+        Redis {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w " ~ mrpe_check_details.warn ~ " -c " ~ mrpe_check_details.crit ~ " -r " ~ mrpe_check_details.rss_warn ~ " -R " ~ mrpe_check_details.rss_crit ~ " -s " ~ mrpe_check_details.get('server', 'localhost') ~ " -p " ~ mrpe_check_details.get('port', '6379') ~ " -P " ~ check_mk.agent.plugins.redis.get('pass', 'no-access-to-redis-credentials') ~ " -t " ~ mrpe_check_details.get('timeout', '10') }}
     - append_if_not_found: true
     - backup: false
     - require:
