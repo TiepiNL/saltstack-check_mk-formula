@@ -34,7 +34,7 @@ args = opt_parser.parse_args()[0]
 
 
 if args.server == None:
-  print "A Redis server (--server) must be supplied. Please see --help for more details."
+  print ("A Redis server (--server) must be supplied. Please see --help for more details.")
   sys.exit(-1)
 
 # can't check /proc unless on local
@@ -49,15 +49,15 @@ if is_local:
 args_dict = args.__dict__
 for option in check_fields:
     if args_dict[option] == None:
-        print "A %s %s must be supplied. Please see --help for more details." % tuple(option.split("_"))
+        print ("A %s %s must be supplied. Please see --help for more details." % tuple(option.split("_")))
         sys.exit(-1)
 
     try:
       value = (args.__dict__[option])
       if value < 0: raise ValueError
       else: globals()[option] = int(value)
-    except ValueError, e:
-      print  "A %s %s must be a positive integer. Please see --help for more details." % tuple(option.split("_"))
+    except ValueError as e:
+      print  ("A %s %s must be a positive integer. Please see --help for more details." % tuple(option.split("_")))
       sys.exit(-1)
 
 # ================
@@ -71,19 +71,19 @@ try:
   else:
     redis_connection = redis.Redis(host=args.server, port=int(args.port), socket_timeout=args.timeout)
   redis_info = redis_connection.info()
-except (socket.error, redis.exceptions.ConnectionError, redis.exceptions.ResponseError), e:
-  print "CRITICAL: Problem establishing connection to Redis server %s: %s " % (str(args.server), str(repr(e)))
+except (socket.error, redis.exceptions.ConnectionError, redis.exceptions.ResponseError) as e:
+  print ("CRITICAL: Problem establishing connection to Redis server %s: %s " % (str(args.server), str(repr(e))))
   sys.exit(EXIT_NAGIOS_CRITICAL)
 
 # Redis VM
 if redis_info.get("vm_conf_pages", None) != None and redis_info.get("vm_stats_used_pages", None) != None:
   if int(redis_info["vm_conf_pages"]) < int(redis_info["vm_stats_used_pages"]):
     if (float(redis_info["vm_conf_pages"]) / float(redis_info["vm_stats_used_pages"])) < 0.5:
-      print "CRITICAL: Redis is using %d VM pages of %d allowed | used_memory=%sMB clients=%s used_rss=%sMB" % (int(redis_info["vm_stats_used_pages"]), int(redis_info["vm_conf_pages"]), redis_info['used_memory'], redis_info['connected_clients'], rss)
-      sys.exit(EXIT_NAGIOS_CRITICAL)
+      print ("CRITICAL: Redis is using %d VM pages of %d allowed | used_memory=%sMB clients=%s used_rss=%sMB" % (int(redis_info["vm_stats_used_pages"]), int(redis_info["vm_conf_pages"]), redis_info['used_memory'], redis_info['connected_clients'], rss)
+      sys.exit(EXIT_NAGIOS_CRITICAL))
     else:
-      print "WARN: Redis is using %d VM pages of %d allowed| used_memory=%sMB clients=%s used_rss=%sMB" % (int(redis_info["vm_stats_used_pages"]), int(redis_info["vm_conf_pages"]), redis_info['used_memory'], redis_info['connected_clients'], rss)
-      sys.exit(EXIT_NAGIOS_CRITICAL)
+      print ("WARN: Redis is using %d VM pages of %d allowed| used_memory=%sMB clients=%s used_rss=%sMB" % (int(redis_info["vm_stats_used_pages"]), int(redis_info["vm_conf_pages"]), redis_info['used_memory'], redis_info['connected_clients'], rss)
+      sys.exit(EXIT_NAGIOS_CRITICAL))
 
 # do the / 1024 / 1024 calculations once (bytes -> KB -> MB)
 rss = redis_info["used_memory_rss"] / 1024 / 1024
@@ -92,23 +92,23 @@ used_memory = redis_info["used_memory"] / 1024 / 1024
 
 # Redis memory usage
 if used_memory >= critical_threshold:
-  print "CRITICAL: Redis is using %dMB of RAM. | used_memory=%sMB clients=%s used_rss=%sMB" % (rss, used_memory, redis_info['connected_clients'], rss)
-  sys.exit(EXIT_NAGIOS_CRITICAL)
+  print ("CRITICAL: Redis is using %dMB of RAM. | used_memory=%sMB clients=%s used_rss=%sMB" % (rss, used_memory, redis_info['connected_clients'], rss)
+  sys.exit(EXIT_NAGIOS_CRITICAL))
 elif used_memory >= warn_threshold:
-  print "WARN: Redis is using %dMB of RAM. | used_memory=%sMB clients=%s used_rss=%sMB" % (used_memory, used_memory, redis_info['connected_clients'], rss)
-  sys.exit(EXIT_NAGIOS_WARN)
+  print ("WARN: Redis is using %dMB of RAM. | used_memory=%sMB clients=%s used_rss=%sMB" % (used_memory, used_memory, redis_info['connected_clients'], rss)
+  sys.exit(EXIT_NAGIOS_WARN))
 
 
 # RSS memory usage
 if is_local:
   if rss >= rss_critical:
-    print "CRITICAL: Redis is using %dMB of RAM (RSS) | used_memory=%sMB clients=%s used_rss=%sMB" % (rss, used_memory, redis_info['connected_clients'], rss)
-    sys.exit(EXIT_NAGIOS_CRITICAL)
+    print ("CRITICAL: Redis is using %dMB of RAM (RSS) | used_memory=%sMB clients=%s used_rss=%sMB" % (rss, used_memory, redis_info['connected_clients'], rss)
+    sys.exit(EXIT_NAGIOS_CRITICAL))
   elif rss  >= rss_warn:
-    print "WARN: Redis is using %d MB of RAM (RSS) | used_memory=%sMB clients=%s used_rss=%sMB" % (rss, used_memory, redis_info['connected_clients'], rss)
-    sys.exit(EXIT_NAGIOS_WARN)
+    print ("WARN: Redis is using %d MB of RAM (RSS) | used_memory=%sMB clients=%s used_rss=%sMB" % (rss, used_memory, redis_info['connected_clients'], rss)
+    sys.exit(EXIT_NAGIOS_WARN))
 
-  print "OK: Redis is using %dMB of RAM (%s RSS). Days Up: %s Clients: %s Version: %s | used_memory=%sMB clients=%s used_rss=%sMB" % \
+  print ("OK: Redis is using %dMB of RAM (%s RSS). Days Up: %s Clients: %s Version: %s | used_memory=%sMB clients=%s used_rss=%sMB" % \
     ( \
     used_memory,
     rss,
@@ -118,9 +118,9 @@ if is_local:
     used_memory,
     redis_info["connected_clients"],
     rss
-    )
+    ))
 else:
-  print "OK: Redis is using %dMB of RAM. Days Up: %s Clients: %s Version: %s | used_memory=%sMB clients=%s used_rss=%sMB" % \
+  print ("OK: Redis is using %dMB of RAM. Days Up: %s Clients: %s Version: %s | used_memory=%sMB clients=%s used_rss=%sMB" % \
     ( \
     used_memory,
     redis_info["uptime_in_days"],
@@ -129,6 +129,6 @@ else:
     used_memory,
     redis_info["connected_clients"],
     rss
-    )
+    ))
 
 sys.exit(EXIT_NAGIOS_OK)
