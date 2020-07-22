@@ -147,32 +147,6 @@ except (
     )
     sys.exit(EXIT_NAGIOS_CRITICAL)
 
-# Redis VM
-if redis_info.get("vm_conf_pages", None) is not None \
-        and redis_info.get("vm_stats_used_pages", None) is not None:
-    if int(redis_info["vm_conf_pages"]) < \
-            int(redis_info["vm_stats_used_pages"]):
-        if (float(redis_info["vm_conf_pages"]) /
-                float(redis_info["vm_stats_used_pages"])) < 0.5:
-            print ("CRITICAL: Redis is using %d VM pages of %d allowed | "
-                   "used_memory=%sMB clients=%s used_rss=%sMB" %
-                   (int(redis_info["vm_stats_used_pages"]),
-                    int(redis_info["vm_conf_pages"]),
-                    redis_info['used_memory'],
-                    redis_info['connected_clients'],
-                    rss)
-                   )
-            sys.exit(EXIT_NAGIOS_CRITICAL)
-        else:
-            print ("WARN: Redis is using %d VM pages of %d allowed | "
-                   "used_memory=%sMB clients=%s used_rss=%sMB" %
-                   (int(redis_info["vm_stats_used_pages"]),
-                    int(redis_info["vm_conf_pages"]),
-                    redis_info['used_memory'],
-                    redis_info['connected_clients'],
-                    rss)
-                   )
-            sys.exit(EXIT_NAGIOS_CRITICAL)
 
 # Do the / 1024 / 1024 calculations once (bytes -> KB -> MB)
 # Rounded version with two decimals for perfdata
@@ -183,17 +157,43 @@ rss_round = round(rss)
 used_memory_round = round(used_memory)
 
 
+# Redis VM
+if redis_info.get("vm_conf_pages", None) is not None \
+        and redis_info.get("vm_stats_used_pages", None) is not None:
+    if int(redis_info["vm_conf_pages"]) < \
+            int(redis_info["vm_stats_used_pages"]):
+        if (float(redis_info["vm_conf_pages"]) /
+                float(redis_info["vm_stats_used_pages"])) < 0.5:
+            print ("CRIT - Redis is using %d VM pages of %d allowed | "
+                   "used_memory=%sMB used_rss=%sMB" %
+                   (int(redis_info["vm_stats_used_pages"]),
+                    int(redis_info["vm_conf_pages"]),
+                    used_memory,
+                    rss)
+                   )
+            sys.exit(EXIT_NAGIOS_CRITICAL)
+        else:
+            print ("WARN - Redis is using %d VM pages of %d allowed | "
+                   "used_memory=%sMB used_rss=%sMB" %
+                   (int(redis_info["vm_stats_used_pages"]),
+                    int(redis_info["vm_conf_pages"]),
+                    used_memory,
+                    rss)
+                   )
+            sys.exit(EXIT_NAGIOS_CRITICAL)
+
+
 # Redis memory usage
 if used_memory >= critical_threshold:
-    print ("CRITICAL: Redis is using %dMB of RAM. | "
-           "used_memory=%sMB clients=%s used_rss=%sMB" %
-           (rss_round, used_memory_round, redis_info['connected_clients'], rss)
+    print ("CRIT - Redis is using %dMB of RAM. | "
+           "used_memory=%sMB used_rss=%sMB" %
+           (rss_round, used_memory_round, rss)
            )
     sys.exit(EXIT_NAGIOS_CRITICAL)
 elif used_memory >= warn_threshold:
-    print ("WARN: Redis is using %dMB of RAM. | "
-           "used_memory=%sMB clients=%s used_rss=%sMB" %
-           (used_memory_round, used_memory, redis_info['connected_clients'], rss)
+    print ("WARN - Redis is using %dMB of RAM. | "
+           "used_memory=%sMB used_rss=%sMB" %
+           (used_memory_round, used_memory, rss)
            )
     sys.exit(EXIT_NAGIOS_WARN)
 
@@ -201,43 +201,25 @@ elif used_memory >= warn_threshold:
 # RSS memory usage
 if is_local:
     if rss >= rss_critical:
-        print ("CRITICAL: Redis is using %dMB of RAM (RSS) | "
-               "used_memory=%sMB clients=%s used_rss=%sMB" %
-               (rss_round, used_memory, redis_info['connected_clients'], rss)
+        print ("CRIT - Redis is using %dMB of RAM (RSS) | "
+               "used_memory=%sMB used_rss=%sMB" %
+               (rss_round, used_memory, rss)
                )
         sys.exit(EXIT_NAGIOS_CRITICAL)
     elif rss >= rss_warn:
-        print ("WARN: Redis is using %d MB of RAM (RSS) | "
-               "used_memory=%sMB clients=%s used_rss=%sMB" %
-               (rss_round, used_memory, redis_info['connected_clients'], rss)
+        print ("WARN - Redis is using %dMB of RAM (RSS) | "
+               "used_memory=%sMB used_rss=%sMB" %
+               (rss_round, used_memory, rss)
                )
         sys.exit(EXIT_NAGIOS_WARN)
 
-    print ("OK: Redis is using %dMB of RAM (%sMB RSS). Days Up: %s Clients: %s "
-           "Version: %s | used_memory=%sMB clients=%s used_rss=%sMB" %
-           (
-            used_memory_round,
-            rss_round,
-            redis_info["uptime_in_days"],
-            redis_info["connected_clients"],
-            redis_info["redis_version"],
-            used_memory,
-            redis_info["connected_clients"],
-            rss
-            )
+    print ("OK - Redis is using %dMB of RAM (%sMB RSS) | "
+           "used_memory=%sMB used_rss=%sMB" %
+           (used_memory_round, rss_round, used_memory, rss)
            )
 else:
-    print ("OK: Redis is using %dMB of RAM. Days Up: %s Clients: %s "
-           "Version: %s | used_memory=%sMB clients=%s used_rss=%sMB" %
-           (
-            used_memory_round,
-            redis_info["uptime_in_days"],
-            redis_info["connected_clients"],
-            redis_info["redis_version"],
-            used_memory,
-            redis_info["connected_clients"],
-            rss
-            )
+    print ("OK - Redis is using %dMB of RAM | used_memory=%sMB used_rss=%sMB" %
+           (used_memory_round, used_memory, rss)
            )
 
 sys.exit(EXIT_NAGIOS_OK)
