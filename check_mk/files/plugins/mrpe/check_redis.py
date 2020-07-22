@@ -174,9 +174,10 @@ if redis_info.get("vm_conf_pages", None) is not None \
                    )
             sys.exit(EXIT_NAGIOS_CRITICAL)
 
-# do the / 1024 / 1024 calculations once (bytes -> KB -> MB)
-rss = redis_info["used_memory_rss"] / 1024 / 1024
-used_memory = redis_info["used_memory"] / 1024 / 1024
+# Do the / 1024 / 1024 calculations once (bytes -> KB -> MB)
+# Round to the nearest integer
+rss = round(redis_info["used_memory_rss"] / 1024 / 1024)
+used_memory = round(redis_info["used_memory"] / 1024 / 1024)
 
 
 # Redis memory usage
@@ -209,7 +210,7 @@ if is_local:
                )
         sys.exit(EXIT_NAGIOS_WARN)
 
-    print ("OK: Redis is using %dMB of RAM (%s RSS). Days Up: %s Clients: %s "
+    print ("OK: Redis is using %dMB of RAM (%sMB RSS). Days Up: %s Clients: %s "
            "Version: %s | used_memory=%sMB clients=%s used_rss=%sMB" %
            (
             used_memory,
