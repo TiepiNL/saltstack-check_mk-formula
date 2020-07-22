@@ -142,7 +142,7 @@ except (
         redis.exceptions.ConnectionError,
         redis.exceptions.ResponseError) as e:
     print (
-        "CRITICAL: Problem establishing connection to "
+        "CRIT - Problem establishing connection to "
         "Redis server %s: %s " % (str(args.server), str(repr(e)))
     )
     sys.exit(EXIT_NAGIOS_CRITICAL)
@@ -185,13 +185,13 @@ if redis_info.get("vm_conf_pages", None) is not None \
 
 # Redis memory usage
 if used_memory >= critical_threshold:
-    print ("CRIT - Redis is using %dMB of RAM. | "
+    print ("CRIT - Redis is using %d MB of RAM. | "
            "used_memory=%sMB used_rss=%sMB" %
            (rss_round, used_memory_round, rss)
            )
     sys.exit(EXIT_NAGIOS_CRITICAL)
 elif used_memory >= warn_threshold:
-    print ("WARN - Redis is using %dMB of RAM. | "
+    print ("WARN - Redis is using %d MB of RAM. | "
            "used_memory=%sMB used_rss=%sMB" %
            (used_memory_round, used_memory, rss)
            )
@@ -201,24 +201,24 @@ elif used_memory >= warn_threshold:
 # RSS memory usage
 if is_local:
     if rss >= rss_critical:
-        print ("CRIT - Redis is using %dMB of RAM (RSS) | "
+        print ("CRIT - Redis is using %d MB of RAM (RSS) | "
                "used_memory=%sMB used_rss=%sMB" %
                (rss_round, used_memory, rss)
                )
         sys.exit(EXIT_NAGIOS_CRITICAL)
     elif rss >= rss_warn:
-        print ("WARN - Redis is using %dMB of RAM (RSS) | "
+        print ("WARN - Redis is using %d MB of RAM (RSS) | "
                "used_memory=%sMB used_rss=%sMB" %
                (rss_round, used_memory, rss)
                )
         sys.exit(EXIT_NAGIOS_WARN)
 
-    print ("OK - Redis is using %dMB of RAM (%sMB RSS) | "
+    print ("OK - Redis is using %d MB of RAM (%s MB RSS) | "
            "used_memory=%sMB used_rss=%sMB" %
            (used_memory_round, rss_round, used_memory, rss)
            )
 else:
-    print ("OK - Redis is using %dMB of RAM | used_memory=%sMB used_rss=%sMB" %
+    print ("OK - Redis is using %d MB of RAM | used_memory=%sMB used_rss=%sMB" %
            (used_memory_round, used_memory, rss)
            )
 
