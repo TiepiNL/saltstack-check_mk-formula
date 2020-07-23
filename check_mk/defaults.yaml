@@ -21,10 +21,13 @@ check_mk:
     plugins_dir: '/usr/lib/check_mk_agent/plugins'
     plugins:
       defaults:
+        # By default, the following check_mk plugins are enabled.
+        # Overwrite them in pillar config if you don't want to use them.
         mk_apt_enabled: true
         mk_inventory_enabled: true
         mk_iptables_enabled: true
         mk_logins_enabled: true
+        mk_logwatch_enabled: true
         mk_sshd_config_enabled: true
         apt:
           # Can either be 'upgrade' or 'dist-upgrade'.
@@ -34,6 +37,7 @@ check_mk:
         inventory:
           # Inventory interval in seconds.
           interval: 14400
+
       mysql:
         monitoring_user: root
         monitoring_password: ''

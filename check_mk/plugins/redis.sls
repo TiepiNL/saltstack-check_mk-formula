@@ -17,7 +17,7 @@ check_mk-mk_redis_cfg-plugins-redis-file-managed:
   file.managed:
     - name: {{ check_mk.agent.config_dir }}/mk_redis.cfg
     - source: {{ files_switch(['mk_redis.cfg.jinja'],
-                              lookup='check_mk-mk_redis_cfg-plugins-mysql-file-managed'
+                              lookup='check_mk-mk_redis_cfg-plugins-redis-file-managed'
                  )
               }}
     - template: jinja

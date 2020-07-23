@@ -1,0 +1,16 @@
+# https://github.com/tribe29/checkmk/blob/master/agents/cfg_examples/logwatch.cfg
+#
+# Copyright (C) 2019 tribe29 GmbH - License: GNU General Public License v2
+# This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+# conditions defined in the file COPYING, which is part of this source code package.
+
+# logwatch.cfg
+# This file configures mk_logwatch. Define your logfiles
+# and patterns to be looked for here.
+
+{%- for logfile, logfile_details in plugin_logwatch.items() %}
+{{ logfile_details.name }}{{ ' maxlines=' ~ logfile_details.options.maxlines if logfile_details.options.maxlines is defined }}{{ ' maxtime=' ~ logfile_details.options.maxtime if logfile_details.options.maxtime is defined }}{{ ' overflow=' ~ logfile_details.options.overflow if logfile_details.options.overflow is defined }}{{ ' nocontext=' ~ logfile_details.options.nocontext if logfile_details.options.nocontext is defined }}{{ ' maxlinesize=' ~ logfile_details.options.maxlinesize if logfile_details.options.maxlinesize is defined }}{{ ' maxfilesize=' ~ logfile_details.options.maxfilesize if logfile_details.options.maxfilesize is defined }}
+{%-   for pattern in logfile_details.patterns %}
+{{ ' ' ~ pattern }}
+{%-   endfor %}
+{%- endfor %}
