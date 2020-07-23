@@ -661,7 +661,7 @@ pct_connections_aborted() {
         # This should be impossible?
         OUTPUT="No connections at all yet - nothing to check!"
     fi
-	echo "${STATUS_ABORTED_CONNECTS}|%|${OUTPUT}"
+	echo "${PCT_CONNECTIONS_ABORTED}|%|${OUTPUT}"
 }
 
 # ########################################################################
