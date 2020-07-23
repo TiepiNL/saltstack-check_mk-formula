@@ -101,9 +101,9 @@ check_mk-mk_logwatch-plugins-defaults:
 # Create a mk_logwatch.cfg in the agent configuration directory.
 check_mk-mk_logwatch_cfg-plugins-defaults-file-managed:
   file.managed:
-    - name: {{ check_mk.agent.config_dir }}/mk_logwatch.cfg
+    - name: {{ check_mk.agent.config_dir }}/logwatch.cfg
     - source: {{ files_switch(['mk_logwatch.cfg.jinja'],
-                              lookup='check_mk-mk_logwatch_cfg-plugins-defaults-file-managed'
+                              lookup='check_mk-logwatch_cfg-plugins-defaults-file-managed'
                  )
               }}
     - template: jinja
