@@ -9,7 +9,7 @@
 # and patterns to be looked for here.
 
 {%- for logfile, logfile_details in plugin_logwatch.items() %}
-{{ logfile_details.name }}{{ ' maxlines=' ~ logfile_details.options.maxlines if logfile_details.options.maxlines is defined }}{{ ' maxtime=' ~ logfile_details.options.maxtime if logfile_details.options.maxtime is defined }}{{ ' overflow=' ~ logfile_details.options.overflow if logfile_details.options.overflow is defined }}{{ ' nocontext=' ~ logfile_details.options.nocontext if logfile_details.options.nocontext is defined }}{{ ' maxlinesize=' ~ logfile_details.options.maxlinesize if logfile_details.options.maxlinesize is defined }}{{ ' maxfilesize=' ~ logfile_details.options.maxfilesize if logfile_details.options.maxfilesize is defined }}
+{{ logfile_details.name }}{{ ' maxlines=' ~ logfile_details.options.maxlines if logfile_details.options.maxlines is defined else '' }}{{ ' maxtime=' ~ logfile_details.options.maxtime if logfile_details.options.maxtime is defined else '' }}{{ ' overflow=' ~ logfile_details.options.overflow if logfile_details.options.overflow is defined else '' }}{{ ' nocontext=' ~ logfile_details.options.nocontext if logfile_details.options.nocontext is defined else '' }}{{ ' maxlinesize=' ~ logfile_details.options.maxlinesize if logfile_details.options.maxlinesize is defined else '' }}{{ ' maxfilesize=' ~ logfile_details.options.maxfilesize if logfile_details.options.maxfilesize is defined else '' }}
 {%-   for pattern in logfile_details.patterns %}
 {{ ' ' ~ pattern }}
 {%-   endfor %}
