@@ -48,6 +48,7 @@ main() {
             -c|--critical)       shift; OPT_CRIT="${1}"; shift; ;;
             -C|--compare)        shift; OPT_COMP="${1}"; shift; ;;
             -w|--warning)        shift; OPT_WARN="${1}"; shift; ;;
+            -f|--file)           shift; OPT_FILE="${1}"; shift; ;;
             -*)                  echo "Unknown option ${o}."; exit 1; ;;
         esac
     done
@@ -56,6 +57,7 @@ main() {
     OPT_CHCK="${OPT_CHCK:-recommendations}"
     OPT_CRIT="${OPT_CRIT:-None}"
     OPT_WARN="${OPT_WARN:-None}"
+    OPT_FILE="${OPT_FILE:-${JSON_FILE}}"
 
     # Validate the options.
     case "${OPT_COMP}" in
@@ -87,6 +89,19 @@ main() {
         *)
             ;;
     esac
+	
+    if [[ ! -f "${OPT_FILE}" ]]; then
+        OPT_ERR="JSON file '${OPT_FILE}' does not exist"
+    fi
+
+    if [ "${OPT_ERR}" ]; then
+        echo "Error: $OPT_ERR."
+        exit 1
+    fi
+
+    # Load the JSON.
+    JSON=$(cat "${OPT_FILE}")
+
 
     case "${OPT_CHCK}" in
         'pct_slow_queries')
@@ -165,14 +180,10 @@ main() {
             CHECK_OUTPUT=$(recommendations)
             ;;
         *)
-            OPT_ERR="-a/--action '${OPT_CHCK}' not recognized"
+            echo "Error: -a/--action '${OPT_CHCK}' not recognized"
+			exit 1
             ;;
     esac
-
-    if [ "${OPT_ERR}" ]; then
-        echo "Error: $OPT_ERR."
-        exit 1
-    fi
 
     # split the check output based on the delimiter '|'.
     IFS_OLD=$IFS
@@ -378,21 +389,17 @@ hr_time() {
 # ########################################################################
 process_json() {
     # Declare local variables.
-    local OPT_FILE; local OPT_KEY; local OPT_NULL
+    local OPT_KEY; local OPT_NULL
     local OPT_ERR
     local VAL
     # Get options.
     for o; do
         case "${o}" in
-            -f|--file)       shift; OPT_FILE="${1}"; shift; ;;
             -k|--key)        shift; OPT_KEY="${1}"; shift; ;;
             -n|--null)       shift; OPT_NULL="${1}"; shift; ;;
             -*)              echo "Unknown option ${o}."; exit 1; ;;
         esac
     done
-    # If variable not set or null, use default.
-    OPT_FILE="${OPT_FILE:-${JSON_FILE}}"
-
     # Validate the options.
     if [ -z "${OPT_KEY}" ]; then
         OPT_ERR="you must specify -k or --key"
@@ -419,11 +426,6 @@ process_json() {
         esac
     fi
 
-    # Make sure the JSON file is loaded only once per script run.
-    if [ "${LOAD_JSON_FILE}" = true ]; then
-        JSON=$(cat "${OPT_FILE}")
-	    LOAD_JSON_FILE=false
-    fi
     # Retrieve the json key by using jq.
     VAL=$(echo "${JSON}" | jq ". | .${OPT_KEY#.}")
     # If the key doesn't exist, VAL will be "null" (string, not NULL).
@@ -1364,11 +1366,6 @@ recommendations() {
 # Execute the program if it was not included from another file.
 # This makes it possible to include without executing, and thus test.
 # ########################################################################
-
-# The first time  the `process_json` function is called, it loads the
-# json file into a variable. The LOAD_JSON_FILE boolean makes sure 
-# the file is loaded only once.
-LOAD_JSON_FILE=true
 
 MRPE_OUTPUT=$(main "$@")
 case "${MRPE_OUTPUT}" in
