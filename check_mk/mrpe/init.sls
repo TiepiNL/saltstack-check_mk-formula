@@ -7,6 +7,7 @@
 
 # @TODO: retrieve roles from pillar, pillar based includes
 include:
+  - .exim
   - .needrestart
   - .mysql
   - .redis
