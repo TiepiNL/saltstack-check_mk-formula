@@ -207,7 +207,7 @@ mail_queue_length() {
         OUTPUT="Mail is queing up: ${QUEUE_LENGTH} emails queued for delivery"
         # Export a summary of messages in the queue
         # (count, volume, oldest, newest, domain, and totals).
-        exim -bp | exiqsumm > /var/log/exiqsumm.log
+        exim -bp | exiqsumm | sed '/^[[:space:]]*$/d' > /var/log/exiqsumm.log
     else
         OUTPUT="Mail queue is empty - all good!"
     fi
