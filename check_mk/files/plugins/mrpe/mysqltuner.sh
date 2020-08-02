@@ -159,7 +159,7 @@ main() {
             CHECK_OUTPUT=$(pct_keys_from_mem)
             ;;
         'pct_wkeys_from_mem')
-            CHECK_OUTPUT=$(pct_aria_keys_from_mem)
+            CHECK_OUTPUT=$(pct_wkeys_from_mem)
             ;;
         'pct_aria_keys_from_mem')
             CHECK_OUTPUT=$(pct_aria_keys_from_mem)
@@ -1183,7 +1183,7 @@ pct_aria_keys_from_mem() {
         if (( STATUS_ARIA_PAGECACHE_READ_REQUESTS > 0 )); then
             PCT_ARIA_KEYS_FROM_MEM=$(pct -i "${STATUS_ARIA_PAGECACHE_READS}" -t "${STATUS_ARIA_PAGECACHE_READ_REQUESTS}")
             PCT_ARIA_KEYS_FROM_MEM=$(bc -l <<< "100-${PCT_ARIA_KEYS_FROM_MEM}")
-            OUTPUT="Aria pagecache hit rate: ${PCT_ARIA_KEYS_FROM_MEM}% $(hr_num "${STATUS_ARIA_PAGECACHE_READ_REQUESTS}") cached / $(hr_num "${STATUS_ARIA_PAGECACHE_READS}") reads)"
+            OUTPUT="Aria pagecache hit rate: ${PCT_ARIA_KEYS_FROM_MEM}% ($(hr_num "${STATUS_ARIA_PAGECACHE_READ_REQUESTS}") cached / $(hr_num "${STATUS_ARIA_PAGECACHE_READS}") reads)"
         else
             PCT_ARIA_KEYS_FROM_MEM=100
             OUTPUT="No queries have run yet that would use keys - nothing to check!"
