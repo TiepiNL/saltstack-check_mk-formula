@@ -225,10 +225,9 @@ mail_queue_length() {
         IFS=","
         read -r -a QUEUE_DETAILS_ARR <<< "${QUEUE_DETAILS}"
         IFS=$IFS_OLD
+
         # Extend the output with the queue details.
         OUTPUT="${OUTPUT} - volume: ${QUEUE_DETAILS_ARR[1]}, oldest: ${QUEUE_DETAILS_ARR[2]}, newest: ${QUEUE_DETAILS_ARR[3]}"
-
-echo "${OUTPUT}"
 
     else
         OUTPUT="Mail queue is empty - all good!"
