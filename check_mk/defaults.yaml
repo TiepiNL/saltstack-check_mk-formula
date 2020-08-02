@@ -65,7 +65,7 @@ check_mk:
         checks:
           mail_queue_length:
               pretty_name: "mail queue"
-              compare: '>'
+              compare: '>='
               warn: None
               crit: None          
       mysql:
