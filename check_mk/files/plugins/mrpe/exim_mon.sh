@@ -197,7 +197,7 @@ compare_result() {
 # ########################################################################
 # @TODO:
 # ########################################################################
-function_name(mail_queue_length) {
+mail_queue_length() {
     # Declare local variables.
     local QUEUE_LENGTH; local OUTPUT
     # Set variables with exim data.

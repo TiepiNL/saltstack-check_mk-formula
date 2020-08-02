@@ -64,7 +64,7 @@ check_mk:
       exim:
         checks:
           mail_queue_length:
-              pretty_name: "Mail queue"
+              pretty_name: "mail queue"
               compare: '>'
               warn: None
               crit: None          
