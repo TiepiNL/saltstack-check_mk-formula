@@ -1004,7 +1004,7 @@ pct_files_open() {
 pct_table_locks_immediate() {
     # Declare local variables.
     local STATUS_TABLE_LOCKS_IMMEDIATE; local STATUS_TABLE_LOCKS_WAITED
-local PCT_TABLE_LOCKS_IMMEDIATE; local OUTPUT
+    local PCT_TABLE_LOCKS_IMMEDIATE; local OUTPUT
     # Set variables with JSON data.
     STATUS_TABLE_LOCKS_IMMEDIATE=$(process_json -k "Status.Table_locks_immediate")
     STATUS_TABLE_LOCKS_WAITED=$(process_json -k "Status.Table_locks_waited")

@@ -31,7 +31,12 @@ check_mk-exim-monitoring-mrpe-exim-file-blockreplace:
     - marker_start: '# start-exim-monitoring-include'
     - marker_end: '# end-exim-monitoring-include'
     - content: |
-        #@TODO: exim_mon.sh loop
+{%- set mrpe_checks = check_mk.agent.mrpe.exim.checks %}
+{%- for check, check_details in mrpe_checks.items() %}
+{%-   if check_details.get('enabled', true) %}
+        Exim%20{{ check_details.pretty_name.replace(" ", "%20") ~ " " ~ check_mk.agent.mrpe.script_dir ~ "/exim_mon.sh -a " ~ check ~ " -c " ~ check_details.get('crit', 'None') ~ " -w " ~ check_details.get('warn', 'None') ~ " -C '" ~ check_details.get('compare', '>=') ~ "'" }}
+{%-   endif %}
+{%- endfor %}
     - append_if_not_found: true
     - backup: false
     - require:
