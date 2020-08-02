@@ -205,6 +205,9 @@ mail_queue_length() {
     # Logic & calculations	
     if (( QUEUE_LENGTH > 0 )); then
         OUTPUT="Mail is queing up: ${QUEUE_LENGTH} emails queued for delivery"
+        # Export a summary of messages in the queue
+        # (count, volume, oldest, newest, domain, and totals).
+        exim -bp | exiqsumm > /var/log/exiqsumm.log
     else
         OUTPUT="Mail queue is empty - all good!"
     fi
