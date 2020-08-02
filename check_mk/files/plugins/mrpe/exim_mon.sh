@@ -199,15 +199,37 @@ compare_result() {
 # ########################################################################
 mail_queue_length() {
     # Declare local variables.
-    local QUEUE_LENGTH; local OUTPUT
+    local QUEUE_LENGTH; local QUEUE_DETAILS; local QUEUE_DETAILS_ARR
+	local OUTPUT
     # Set variables with exim data.
     QUEUE_LENGTH=$(exim -bpc)
     # Logic & calculations	
     if (( QUEUE_LENGTH > 0 )); then
         OUTPUT="Mail is queing up: ${QUEUE_LENGTH} emails queued for delivery"
-        # Export a summary of messages in the queue
+        # Get a summary of messages in the queue
         # (count, volume, oldest, newest, domain, and totals).
-        exim -bp | exiqsumm | sed '/^[[:space:]]*$/d' > /var/log/exiqsumm.log
+        QUEUE_DETAILS="$(exim -bp | exiqsumm)"
+        # Remove white lines.
+        QUEUE_DETAILS="$(sed '/^[[:space:]]*$/d' <<< "${QUEUE_DETAILS}")"
+        # Get the last line, by using bash string manipulations to remove
+		# the longest match till \n from start of the string thus leaving
+		# only the last line in input.
+        QUEUE_DETAILS="${QUEUE_DETAILS##*$'\n'}"
+        # Remove leading whitespace.
+        QUEUE_DETAILS="$(sed -e 's/^[[:space:]]*//' <<< "${QUEUE_DETAILS}")"
+        # Replace multiple spaces with a single one,
+        # replace single space with a comma.
+        QUEUE_DETAILS="$(sed 's/[[:space:]][[:space:]]*/,/g' <<< "${QUEUE_DETAILS}")"
+        # Now we can read the queue summary totals as an array.
+        IFS_OLD=$IFS
+        IFS=","
+        read -r -a QUEUE_DETAILS_ARR <<< "${QUEUE_DETAILS}"
+        IFS=$IFS_OLD
+        # Extend the output with the queue details.
+        OUTPUT="${OUTPUT} - volume: ${QUEUE_DETAILS_ARR[1]}, oldest: ${QUEUE_DETAILS_ARR[2]}, newest: ${QUEUE_DETAILS_ARR[3]}"
+
+echo "${OUTPUT}"
+
     else
         OUTPUT="Mail queue is empty - all good!"
     fi
