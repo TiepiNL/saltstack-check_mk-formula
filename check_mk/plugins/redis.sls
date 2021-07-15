@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{#- Get the `tplroot` from `tpldir` #}
+# Get the `tplroot` from `tpldir`
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- set sls_package_install = tplroot ~ '.package.install' %}
 {%- set sls_config_file = tplroot ~ '.config.file' %}
@@ -22,7 +22,7 @@ check_mk-mk_redis_cfg-plugins-redis-file-managed:
               }}
     - template: jinja
     - defaults:
-        plugin_redis: {{ check_mk.agent.plugins.redis | json }}
+        plugin_redis: {{ check_mk.agent.plugins.redis.instances | json }}
     # This file contains credentials. Therefore, access is set to 400.
     - user: {{ check_mk.agent.user }}
     - mode: 400
