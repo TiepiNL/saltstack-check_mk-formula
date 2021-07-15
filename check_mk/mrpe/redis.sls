@@ -41,9 +41,7 @@ check_mk-check_redis_py-mrpe-redis-file-managed:
 # Add the redis checks to the `mrpe.cfg` file.
 #{%- set mrpe_check_defaults = check_mk.agent.mrpe.redis.check %}
 
-{% for redis_instance in check_mk.agent.plugins.redis.get('instances', {}) %}
-
-    {%- set instance = redis_instance.instance %}
+{% for instance, props in check_mk.agent.plugins.redis.get('instances', {}).items() %}
   
 #    {%- set mrpe_check_warn_lvl = redis_instance.get('warn', mrpe_check_defaults.default_thresholds.warn) %}
 #    {%- set mrpe_check_crit_lvl = redis_instance.get('crit', mrpe_check_defaults.default_thresholds.crit) %}
