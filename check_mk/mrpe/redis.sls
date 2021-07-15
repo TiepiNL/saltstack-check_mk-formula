@@ -59,7 +59,7 @@ check_mk-{{redis_instance}}-monitoring-mrpe-redis-file-blockreplace:
     - marker_start: '# start-{{ redis_instance }}-monitoring-include'
     - marker_end: '# end-{{ redis_instance }}-monitoring-include'
     - content: |
-        {{ redis_instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w 60 -c 64 -r 60 -R 64 -s localhost " -p 6379 " -P " ~ redis_pass ~ " -t 10" }}
+        {{ redis_instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w 60 -c 64 -r 60 -R 64 -s localhost -p 6379 -P " ~ redis_pass ~ " -t 10" }}
 #        {{ redis_instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w " ~ mrpe_check_warn_lvl ~ " -c " ~ mrpe_check_crit_lvl ~ " -r " ~ mrpe_check_rss_warn_lvl ~ " -R " ~ mrpe_check_rss_crit_lvl ~ " -s " ~ redis_server ~ " -p " ~ redis_port ~ " -P " ~ redis_pass ~ " -t " ~ mrpe_check_timeout }}
     - append_if_not_found: true
     - backup: false
