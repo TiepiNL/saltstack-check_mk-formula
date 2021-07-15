@@ -53,7 +53,7 @@ check_mk-check_redis_py-mrpe-redis-file-managed:
 #    {%- set redis_port = redis_instance.get('port', '6379') %}
 #    {%- set redis_pass = redis_instance.get('pass', 'no-access-to-redis-credentials') %}
 
-check_mk-{{redis_instance}}-monitoring-mrpe-redis-file-blockreplace:
+check_mk-{{instance}}-monitoring-mrpe-redis-file-blockreplace:
   file.blockreplace:
     - name: {{ check_mk.agent.config_dir }}/mrpe.cfg
     - marker_start: '# start-{{ instance }}-monitoring-include'
