@@ -34,8 +34,8 @@ check_mk-check_redis_py-mrpe-redis-file-managed:
     - source: salt://{{ tplroot }}/files/plugins/mrpe/check_redis.py
     - makedirs: true
     - mode: 774
-#    - required_in:
-#      - check_mk-redis-monitoring-mrpe-redis-file-blockreplace
+    - required_in:
+      - check_mk-redis-monitoring-mrpe-redis-file-blockreplace
 
 
 # Add the redis checks to the `mrpe.cfg` file.
@@ -59,17 +59,16 @@ check_mk-{{instance}}-monitoring-mrpe-redis-file-blockreplace:
     - marker_start: '# start-{{ instance }}-monitoring-include'
     - marker_end: '# end-{{ instance }}-monitoring-include'
     - content: |
-        {{ instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w 60 -c 64 -r 60 -R 64 -s localhost -p 6379 -P nopass -t 10" }}
-#        {{ instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w " ~ mrpe_check_warn_lvl ~ " -c " ~ mrpe_check_crit_lvl ~ " -r " ~ mrpe_check_rss_warn_lvl ~ " -R " ~ mrpe_check_rss_crit_lvl ~ " -s " ~ redis_server ~ " -p " ~ redis_port ~ " -P " ~ redis_pass ~ " -t " ~ mrpe_check_timeout }}
+        {{ instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w " ~ mrpe_check_warn_lvl ~ " -c " ~ mrpe_check_crit_lvl ~ " -r " ~ mrpe_check_rss_warn_lvl ~ " -R " ~ mrpe_check_rss_crit_lvl ~ " -s " ~ redis_server ~ " -p " ~ redis_port ~ " -P " ~ redis_pass ~ " -t " ~ mrpe_check_timeout }}
     - append_if_not_found: true
     - backup: false
-#    - require:
-#{%- if not check_mk.agent.use_packages_formula %}
-#      - pkg: check_mk-python_redis-mrpe-redis-pip-installed
-#      - sls: {{ sls_package_install }}
-#{%- else %}
-#      - sls: packages.pkgs
-#{%- endif %}
-#      - sls: {{ sls_mrpe }}
+    - require:
+{%- if not check_mk.agent.use_packages_formula %}
+      - pkg: check_mk-python_redis-mrpe-redis-pip-installed
+      - sls: {{ sls_package_install }}
+{%- else %}
+      - sls: packages.pkgs
+{%- endif %}
+      - sls: {{ sls_mrpe }}
 
 {%- endfor %}
