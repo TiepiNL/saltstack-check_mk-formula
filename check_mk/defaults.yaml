@@ -57,10 +57,12 @@ check_mk:
         check:
           # Default thresholds are based on the Redis default of
           # 64MB max memory.
-          warn: 50
-          crit: 60
-          rss_warn: 50
-          rss_crit: 60
+          default_thresholds:
+            warn: 50
+            crit: 60
+            rss_warn: 50
+            rss_crit: 60
+          timeout: 10
       exim:
         checks:
           mail_queue_length:
