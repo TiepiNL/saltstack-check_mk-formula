@@ -4,9 +4,9 @@
 
 {%- set redis_instances = [] %}
 {%- for instance, props in plugin_redis.items() %}
-  {%- set port = props.get('port', '6379')|string %}
+  {%- set port = props.get('port', '6379') %}
   {%- set server = props.get('server', 'localhost') %}
-  {%- redis_instances.append(server+"_"+port ) %}
+  {{ redis_instances.append( server+"_"+port|string ) }}
 {%- endfor %}
 
 # List of instances, defines service description for resulting checks
