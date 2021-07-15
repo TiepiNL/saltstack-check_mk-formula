@@ -39,19 +39,19 @@ check_mk-check_redis_py-mrpe-redis-file-managed:
 
 
 # Add the redis checks to the `mrpe.cfg` file.
-#{%- set mrpe_check_defaults = check_mk.agent.mrpe.redis.check %}
+{%- set mrpe_check_defaults = check_mk.agent.mrpe.redis.check %}
 
 {% for instance, props in check_mk.agent.plugins.redis.get('instances', {}).items() %}
   
-#    {%- set mrpe_check_warn_lvl = redis_instance.get('warn', mrpe_check_defaults.default_thresholds.warn) %}
-#    {%- set mrpe_check_crit_lvl = redis_instance.get('crit', mrpe_check_defaults.default_thresholds.crit) %}
-#    {%- set mrpe_check_rss_warn_lvl = redis_instance.get('rss_warn', mrpe_check_defaults.default_thresholds.rss_warn) %}
-#    {%- set mrpe_check_rss_crit_lvl = redis_instance.get('rss_crit', mrpe_check_defaults.default_thresholds.rss_crit) %}
-#    {%- set mrpe_check_timeout = redis_instance.get('timeout', mrpe_check_defaults.timeout) %}
+    {%- set mrpe_check_warn_lvl = props.get('warn', mrpe_check_defaults.default_thresholds.warn) %}
+    {%- set mrpe_check_crit_lvl = props.get('crit', mrpe_check_defaults.default_thresholds.crit) %}
+    {%- set mrpe_check_rss_warn_lvl = props.get('rss_warn', mrpe_check_defaults.default_thresholds.rss_warn) %}
+    {%- set mrpe_check_rss_crit_lvl = props.get('rss_crit', mrpe_check_defaults.default_thresholds.rss_crit) %}
+    {%- set mrpe_check_timeout = props.get('timeout', mrpe_check_defaults.timeout) %}
     
-#    {%- set redis_server = redis_instance.get('server', 'localhost') %}
-#    {%- set redis_port = redis_instance.get('port', '6379') %}
-#    {%- set redis_pass = redis_instance.get('pass', 'no-access-to-redis-credentials') %}
+    {%- set redis_server = props.get('server', 'localhost') %}
+    {%- set redis_port = props.get('port', '6379') %}
+    {%- set redis_pass = props.get('pass', 'no-access-to-redis-credentials') %}
 
 check_mk-{{instance}}-monitoring-mrpe-redis-file-blockreplace:
   file.blockreplace:
@@ -60,7 +60,7 @@ check_mk-{{instance}}-monitoring-mrpe-redis-file-blockreplace:
     - marker_end: '# end-{{ instance }}-monitoring-include'
     - content: |
         {{ instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w 60 -c 64 -r 60 -R 64 -s localhost -p 6379 -P nopass -t 10" }}
-#        {{ redis_instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w " ~ mrpe_check_warn_lvl ~ " -c " ~ mrpe_check_crit_lvl ~ " -r " ~ mrpe_check_rss_warn_lvl ~ " -R " ~ mrpe_check_rss_crit_lvl ~ " -s " ~ redis_server ~ " -p " ~ redis_port ~ " -P " ~ redis_pass ~ " -t " ~ mrpe_check_timeout }}
+#        {{ instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w " ~ mrpe_check_warn_lvl ~ " -c " ~ mrpe_check_crit_lvl ~ " -r " ~ mrpe_check_rss_warn_lvl ~ " -R " ~ mrpe_check_rss_crit_lvl ~ " -s " ~ redis_server ~ " -p " ~ redis_port ~ " -P " ~ redis_pass ~ " -t " ~ mrpe_check_timeout }}
     - append_if_not_found: true
     - backup: false
 #    - require:
