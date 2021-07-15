@@ -2,13 +2,13 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-{%- set redis_instances = " " %}
+{% set redis_instances = [] %}
 {%- for instance, props in plugin_redis.items() %}
-  {%- set redis_instances = (redis_instances + props.get('server', 'localhost') + "_" + props.get('port', '6379')|string + " ") %}
+  {%- redis_instances.append(props.get('server', 'localhost') + "_" + props.get('port', '6379')|string) %}
 {%- endfor %}
 
 # List of instances, defines service description for resulting checks
-REDIS_INSTANCES=({{ redis_instances }})
+REDIS_INSTANCES=({{ redis_instances|join(" ") }})
 
 # Host, Port and optional password per instance
 {% for instance, props in plugin_redis.items() %}
@@ -16,3 +16,5 @@ REDIS_HOST_{{ instance }}="{{ props.get('server', '127.0.0.1') }}"
 REDIS_PORT_{{ instance }}="{{ props.get('port', '6379') }}"
 REDIS_PASSWORD_{{ instance }}='{{ props.get('pass', 'no-access-to-redis-credentials') }}'
 {% endfor %}
+
+
