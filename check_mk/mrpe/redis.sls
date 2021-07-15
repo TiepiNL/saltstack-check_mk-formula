@@ -53,22 +53,22 @@ check_mk-check_redis_py-mrpe-redis-file-managed:
     {%- set redis_port = redis_instance.get('port', '6379') %}
     {%- set redis_pass = redis_instance.get('pass', 'no-access-to-redis-credentials') %}
 
-check_mk-{{redis_instance}}-monitoring-mrpe-redis-file-blockreplace:
-  file.blockreplace:
-    - name: {{ check_mk.agent.config_dir }}/mrpe.cfg
-    - marker_start: '# start-{{ redis_instance }}-monitoring-include'
-    - marker_end: '# end-{{ redis_instance }}-monitoring-include'
-    - content: |
-        {{ redis_instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w " ~ mrpe_check_warn_lvl ~ " -c " ~ mrpe_check_crit_lvl ~ " -r " ~ mrpe_check_rss_warn_lvl ~ " -R " ~ mrpe_check_rss_crit_lvl ~ " -s " ~ redis_server ~ " -p " ~ redis_port ~ " -P " ~ redis_pass ~ " -t " ~ mrpe_check_timeout }}
-    - append_if_not_found: true
-    - backup: false
-    - require:
-{%- if not check_mk.agent.use_packages_formula %}
-      - pkg: check_mk-python_redis-mrpe-redis-pip-installed
-      - sls: {{ sls_package_install }}
-{%- else %}
-      - sls: packages.pkgs
-{%- endif %}
-      - sls: {{ sls_mrpe }}
+#check_mk-{{redis_instance}}-monitoring-mrpe-redis-file-blockreplace:
+#  file.blockreplace:
+#    - name: {{ check_mk.agent.config_dir }}/mrpe.cfg
+#    - marker_start: '# start-{{ redis_instance }}-monitoring-include'
+#    - marker_end: '# end-{{ redis_instance }}-monitoring-include'
+#    - content: |
+#        {{ redis_instance }}%20memory%20usage {{ check_mk.agent.mrpe.script_dir ~ "/check_redis.py -w " ~ mrpe_check_warn_lvl ~ " -c " ~ mrpe_check_crit_lvl ~ " -r " ~ mrpe_check_rss_warn_lvl ~ " -R " ~ mrpe_check_rss_crit_lvl ~ " -s " ~ redis_server ~ " -p " ~ redis_port ~ " -P " ~ redis_pass ~ " -t " ~ mrpe_check_timeout }}
+#    - append_if_not_found: true
+#    - backup: false
+#    - require:
+#{%- if not check_mk.agent.use_packages_formula %}
+#      - pkg: check_mk-python_redis-mrpe-redis-pip-installed
+#      - sls: {{ sls_package_install }}
+#{%- else %}
+#      - sls: packages.pkgs
+#{%- endif %}
+#      - sls: {{ sls_mrpe }}
 
 {%- endfor %}
