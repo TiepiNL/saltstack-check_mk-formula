@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{#- Get the `tplroot` from `tpldir` #}
+# Get the `tplroot` from `tpldir`
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- set sls_package_install = tplroot ~ '.package.install' %}
 {%- set sls_config_file = tplroot ~ '.config.file' %}
@@ -64,7 +64,7 @@ check_mk-{{redis_instance}}-monitoring-mrpe-redis-file-blockreplace:
     - backup: false
     - require:
 {%- if not check_mk.agent.use_packages_formula %}
-      - pkg: check_mk-mysqltuner-mrpe-mysql-pkg-installed
+      - pkg: check_mk-python_redis-mrpe-redis-pip-installed
       - sls: {{ sls_package_install }}
 {%- else %}
       - sls: packages.pkgs
