@@ -2,9 +2,11 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-{% set redis_instances = [] %}
+{%- set redis_instances = [] %}
 {%- for instance, props in plugin_redis.items() %}
-  {%- redis_instances.append(props.get('server', 'localhost') + "_" + props.get('port', '6379')|string) %}
+  {%- set port = props.get('port', '6379')|string %}
+  {%- set server = props.get('server', 'localhost') %}
+  {%- redis_instances.append(server+"_"+port ) %}
 {%- endfor %}
 
 # List of instances, defines service description for resulting checks
