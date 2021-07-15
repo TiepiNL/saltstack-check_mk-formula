@@ -3,10 +3,8 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 {%- set redis_instances = [] %}
-{%- for instance, props in plugin_redis.items() %}
-  {%- set port = props.get('port', '6379') %}
-  {%- set server = props.get('server', 'localhost') %}
-  {%- do redis_instances.append( server+"_"+port|string ) %}
+{%- for instance in plugin_redis %}
+  {%- do redis_instances.append( instance ) %}
 {%- endfor %}
 
 # List of instances, defines service description for resulting checks
