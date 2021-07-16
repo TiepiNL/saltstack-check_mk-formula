@@ -2,6 +2,8 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+{% include 'addons/lib/managed_file_header.jinja' %}
+
 {%- set redis_instances = [] %}
 {%- for instance in plugin_redis %}
   {%- do redis_instances.append( instance ) %}
@@ -11,10 +13,8 @@
 REDIS_INSTANCES=({{ redis_instances|join(" ") }})
 
 # Host, Port and optional password per instance
-{% for instance, props in plugin_redis.items() %}
+{%- for instance, props in plugin_redis.items() %}
 REDIS_HOST_{{ instance }}="{{ props.get('server', '127.0.0.1') }}"
 REDIS_PORT_{{ instance }}="{{ props.get('port', '6379') }}"
 REDIS_PASSWORD_{{ instance }}='{{ props.get('pass', 'no-access-to-redis-credentials') }}'
 {% endfor %}
-
-
